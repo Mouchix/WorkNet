@@ -10,6 +10,7 @@ lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
 composeBom = "2024.09.00"
 firebaseCommonKtx = "22.0.1"
+material = "1.13.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -19,6 +20,11 @@ firebase-common = { module = "com.google.firebase:firebase-common" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 firebase-storage = { module = "com.google.firebase:firebase-storage" }
+google-firebase-auth = { module = "com.google.firebase:firebase-auth" }
+google-firebase-common = { module = "com.google.firebase:firebase-common" }
+google-firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
+google-firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
+google-firebase-storage = { module = "com.google.firebase:firebase-storage" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
@@ -33,6 +39,7 @@ androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
