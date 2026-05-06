@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.worknet.screens.Home
 import com.example.worknet.ui.theme.WorkNetTheme
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -22,12 +23,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WorkNetTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                /*Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
                     )
-                }
+                }*/
+                Home()
             }
         }
     }
