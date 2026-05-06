@@ -4,6 +4,7 @@ data class Application(
     val id: String = "",
     val jobId: String = "",
     val placeId: String = "",
+    val ownerId: String = "",
     val userId: String = "",
     val message: String = "",
     val status: String = "pending", // pending | accepted | rejected
