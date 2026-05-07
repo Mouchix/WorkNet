@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.serialization)
     id("com.google.gms.google-services")
 }
 
@@ -43,7 +44,7 @@ android {
 }
 
 dependencies {
-    val nav_version = "2.9.7"
+    implementation(libs.androidx.ui)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -67,5 +68,5 @@ dependencies {
     implementation(libs.google.firebase.messaging)
     implementation(libs.material)
     implementation(libs.androidx.navigation.compose)
-
+    implementation(libs.ktor.serialization.kotlinx.json)
 }

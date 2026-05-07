@@ -43,9 +43,9 @@ fun HomeScreen(navController: NavHostController) {
         it.contains(searchState.text.toString(), ignoreCase = true)
     }
 
-    Scaffold(
+    Column(
         modifier = Modifier.fillMaxSize()
-    ) { innerPadding ->
+    ) {
         // 3. Passiamo i parametri al componente
         SimpleSearchBar(
             textFieldState = searchState,
@@ -53,13 +53,12 @@ fun HomeScreen(navController: NavHostController) {
             onSearch = { query ->
                 println("L'utente ha cercato: $query")
                 // Qui di solito fai una chiamata al database o a un'API
-            },
-            modifier = Modifier.padding(innerPadding) // Rispetta i margini dello Scaffold
+            }
         )
-        Card()
-        Card()
-        Card()
-        Card()
+        ExampleCard()
+        ExampleCard()
+        ExampleCard()
+        ExampleCard()
 
     }
 }
@@ -119,7 +118,7 @@ fun SimpleSearchBar(
 }
 
 @Composable
-fun Card() {
+fun ExampleCard() {
     Card(
 
     ) {
