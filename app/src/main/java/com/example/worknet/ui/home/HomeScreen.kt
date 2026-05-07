@@ -13,10 +13,9 @@ import com.example.worknet.data.model.Job
 import com.example.worknet.data.model.Place
 import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
-import com.example.worknet.data.repository.UserRepository
 import com.example.worknet.ui.components.JobCard
 import androidx.compose.foundation.clickable
-import kotlinx.coroutines.launch
+import com.example.worknet.ui.components.PlaceCard
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
@@ -94,37 +93,12 @@ fun HomeScreen(navController: NavHostController) {
                     }
 
                     filtered.forEach { (place, jobs) ->
-
                         if (jobs.isNotEmpty()) {
-
-                            // Header del Place
+                            // PlaceCard che contiene i JobCard
                             item {
-                                Column (
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable {
-                                            // Navigazione al dettaglio del place
-                                            navController.navigate("placeDetail/${place.id}")
-                                        }
-                                ){
-                                    Text(
-                                        text = place.title,
-                                        style = MaterialTheme.typography.titleLarge,
-                                        color = MaterialTheme.colorScheme.primary
-                                    )
-                                    Text(
-                                        text = place.address,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.outline
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                }
-                            }
-
-                            // Lista dei job
-                            items(jobs) { job ->
-                                JobCard(
-                                    job = job,
+                                PlaceCard(
+                                    place = place,
+                                    jobs = jobs,
                                     onClick = {
                                         navController.navigate("placeDetail/${place.id}")
                                     }
