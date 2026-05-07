@@ -7,4 +7,5 @@ sealed interface NavigationRoute {
     @Serializable data object Favourites : NavigationRoute
     @Serializable data object Notifications : NavigationRoute
     @Serializable data object Profile : NavigationRoute
+    @Serializable data class PlaceDetail(val placeId: String) : NavigationRoute
 }

@@ -15,6 +15,7 @@ import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.ui.components.JobCard
 import androidx.compose.foundation.clickable
+import com.example.worknet.navigation.NavigationRoute
 import com.example.worknet.ui.components.PlaceCard
 
 @Composable
@@ -100,7 +101,7 @@ fun HomeScreen(navController: NavHostController) {
                                     place = place,
                                     jobs = jobs,
                                     onClick = {
-                                        navController.navigate("placeDetail/${place.id}")
+                                        navController.navigate(NavigationRoute.PlaceDetail(place.id))
                                     }
                                 )
                             }
