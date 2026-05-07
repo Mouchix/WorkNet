@@ -1,127 +1,139 @@
 package com.example.worknet.ui.home
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.SearchBarDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.traversalIndex
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.worknet.data.model.Job
+import com.example.worknet.data.model.Place
+import com.example.worknet.data.repository.JobRepository
+import com.example.worknet.data.repository.PlaceRepository
+import com.example.worknet.data.repository.UserRepository
+import com.example.worknet.ui.components.JobCard
+import androidx.compose.foundation.clickable
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    // 1. Creiamo lo stato per il testo (richiede l'import di TextFieldState)
-    val searchState = rememberSaveable(saver = TextFieldState.Saver) {
-        TextFieldState("")
-    }
 
-    // 2. Creiamo una lista finta di risultati (nella realtà verrebbe da un ViewModel)
-    val mockResults = listOf("Android", "Kotlin", "Compose", "Material Design")
+    // Stato della searchbar
+    var query by remember { mutableStateOf("") }
 
-    // Filtriamo la lista in base a cosa scrive l'utente
-    val filteredResults = mockResults.filter {
-        it.contains(searchState.text.toString(), ignoreCase = true)
-    }
+    // Repository (per ora istanziati qui, poi li sposteremo in un ViewModel)
+    val placeRepository = remember { PlaceRepository() }
+    val jobRepository = remember { JobRepository() }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // 3. Passiamo i parametri al componente
-        SimpleSearchBar(
-            textFieldState = searchState,
-            searchResults = filteredResults,
-            onSearch = { query ->
-                println("L'utente ha cercato: $query")
-                // Qui di solito fai una chiamata al database o a un'API
+    // Stato dei dati
+    var placesWithJobs by remember { mutableStateOf<Map<Place, List<Job>>>(emptyMap()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    // Caricamento iniziale
+    LaunchedEffect(Unit) {
+        val allPlaces = placeRepository.getAllPlaces()
+        val map = mutableMapOf<Place, List<Job>>()
+
+        for (place in allPlaces) {
+            val jobsForPlace = jobRepository.getJobsByPlace(place.id)
+            if (jobsForPlace.isNotEmpty()) {
+                map[place] = jobsForPlace
             }
-        )
-        ExampleCard()
-        ExampleCard()
-        ExampleCard()
-        ExampleCard()
+        }
 
+        placesWithJobs = map
+        isLoading = false
     }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SimpleSearchBar(
-    textFieldState: TextFieldState,
-    onSearch: (String) -> Unit,
-    searchResults: List<String>,
-    modifier: Modifier = Modifier
-) {
-    // Controls expansion state of the search bar
-    var expanded by rememberSaveable { mutableStateOf(false) }
-
-    Box(
-        modifier
+    // Layout principale
+    Column(
+        modifier = Modifier
             .fillMaxSize()
-            .semantics { isTraversalGroup = true }
+            .padding(16.dp)
     ) {
-        SearchBar(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .semantics { traversalIndex = 0f },
-            inputField = {
-                SearchBarDefaults.InputField(
-                    query = textFieldState.text.toString(),
-                    onQueryChange = { textFieldState.edit { replace(0, length, it) } },
-                    onSearch = {
-                        onSearch(textFieldState.text.toString())
-                        expanded = false
-                    },
-                    expanded = expanded,
-                    onExpandedChange = { expanded = it },
-                    placeholder = { Text("Search") }
-                )
-            },
-            expanded = expanded,
-            onExpandedChange = { expanded = it },
-        ) {
-            // Display search results in a scrollable column
-            Column(Modifier.verticalScroll(rememberScrollState())) {
-                searchResults.forEach { result ->
-                    ListItem(
-                        headlineContent = { Text(result) },
-                        modifier = Modifier
-                            .clickable {
-                                textFieldState.edit { replace(0, length, result) }
-                                expanded = false
+
+        // Search Bar
+        OutlinedTextField(
+            value = query,
+            onValueChange = { query = it },
+            label = { Text("Cerca lavoro o attività") },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        when {
+            isLoading -> {
+                // Loading
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            placesWithJobs.isEmpty() -> {
+                // Nessun dato
+                Text("Nessun lavoro disponibile al momento.")
+            }
+
+            else -> {
+                // Lista raggruppata
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+
+                    // Filtriamo PRIMA, così evitiamo duplicazioni
+                    val filtered = placesWithJobs.mapValues { (_, jobs) ->
+                        jobs.filter { it.title.contains(query, ignoreCase = true) }
+                    }
+
+                    filtered.forEach { (place, jobs) ->
+
+                        if (jobs.isNotEmpty()) {
+
+                            // Header del Place
+                            item {
+                                Column (
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable {
+                                            // Navigazione al dettaglio del place
+                                            navController.navigate("placeDetail/${place.id}")
+                                        }
+                                ){
+                                    Text(
+                                        text = place.title,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                    Text(
+                                        text = place.address,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.outline
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                }
                             }
-                            .fillMaxWidth()
-                    )
+
+                            // Lista dei job
+                            items(jobs) { job ->
+                                JobCard(
+                                    job = job,
+                                    onClick = {
+                                        navController.navigate("placeDetail/${place.id}")
+                                    }
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun ExampleCard() {
-    Card(
-
-    ) {
-        Text(text = "Hello, world!")
     }
 }
