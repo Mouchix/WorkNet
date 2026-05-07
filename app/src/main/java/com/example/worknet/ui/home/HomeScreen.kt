@@ -1,4 +1,4 @@
-package com.example.worknet.screens
+package com.example.worknet.ui.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -26,9 +26,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
+import androidx.navigation.NavHostController
 
 @Composable
-fun Home() {
+fun HomeScreen(navController: NavHostController) {
     // 1. Creiamo lo stato per il testo (richiede l'import di TextFieldState)
     val searchState = rememberSaveable(saver = TextFieldState.Saver) {
         TextFieldState("")

@@ -43,6 +43,7 @@ android {
 }
 
 dependencies {
+    val nav_version = "2.9.7"
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -65,5 +66,6 @@ dependencies {
     implementation(libs.google.firebase.storage)
     implementation(libs.google.firebase.messaging)
     implementation(libs.material)
+    implementation(libs.androidx.navigation.compose)
 
 }

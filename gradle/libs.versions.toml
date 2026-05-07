@@ -11,9 +11,11 @@ activityCompose = "1.13.0"
 composeBom = "2024.09.00"
 firebaseCommonKtx = "22.0.1"
 material = "1.13.0"
+navigationCompose = "2.9.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-common = { module = "com.google.firebase:firebase-common" }

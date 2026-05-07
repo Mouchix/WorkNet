@@ -4,17 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.worknet.screens.Home
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import com.example.worknet.ui.home.Home
 import com.example.worknet.ui.theme.WorkNetTheme
-import com.google.firebase.Firebase
-import com.google.firebase.firestore.firestore
+import kotlinx.serialization.Serializable
 
 
 class MainActivity : ComponentActivity() {
@@ -35,17 +31,26 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    val db = Firebase.firestore
-    db.collection("test").add(mapOf("hello" to "world"))
-
+sealed interface NavigationRoute {
+    @Serializable data object Screen1 : NavigationRoute
+    @Serializable data object Screen2 : NavigationRoute
+    @Serializable data object Screen3 : NavigationRoute
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    WorkNetTheme {
-        Greeting("Android")
+fun NavGraph(navController: NavHostController) {
+    NavHost(
+        navController = navController,
+        startDestination = NavigationRoute.Screen1
+    ) {
+        composable<NavigationRoute.Screen1> {
+            Screen1(navController)
+        }
+        composable<NavigationRoute.Screen2> {
+            Screen2(navController)
+        }
+        composable<NavigationRoute.Screen3> {
+            Screen3(navController)
+        }
     }
 }
