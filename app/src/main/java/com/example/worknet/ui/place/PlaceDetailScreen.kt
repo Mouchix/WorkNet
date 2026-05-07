@@ -9,11 +9,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.worknet.data.model.Application
 import com.example.worknet.data.model.Job
 import com.example.worknet.data.model.Place
+import com.example.worknet.data.repository.ApplicationRepository
 import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.ui.components.JobCard
+import kotlinx.coroutines.launch
 
 @Composable
 fun PlaceDetailScreen(
@@ -22,6 +25,7 @@ fun PlaceDetailScreen(
 ) {
     val placeRepository = remember { PlaceRepository() }
     val jobRepository = remember { JobRepository() }
+    val scope = rememberCoroutineScope()
 
     var place by remember { mutableStateOf<Place?>(null) }
     var jobs by remember { mutableStateOf<List<Job>>(emptyList()) }
@@ -113,13 +117,61 @@ fun PlaceDetailScreen(
         }
 
         items(jobs) { job ->
-            JobCard(
-                job = job,
-                onClick = {
-                    // Qui aprirai la candidatura
-                    println("Candidatura per: ${job.title}")
+            var showDialog by remember { mutableStateOf(false) }
+            var isSending by remember { mutableStateOf(false) }
+
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+            ) {
+                JobCard(
+                    job = job,
+                    onClick = {}
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    onClick = {
+                        isSending = true
+
+                        // CREA LA CANDIDATURA
+                        val application = Application(
+                            id = "${job.id}_${System.currentTimeMillis()}",
+                            jobId = job.id,
+                            placeId = place!!.id,
+                            userId = "CURRENT_USER_ID", // poi lo prendiamo da Firebase Auth
+                            message = "Candidatura inviata automaticamente",
+                            status = "pending",
+                            createdAt = System.currentTimeMillis()
+                        )
+
+                        scope.launch {
+                            ApplicationRepository().createApplication(application)
+                            isSending = false
+                            showDialog = true
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !isSending
+                ) {
+                    Text(if (isSending) "Invio..." else "Manda candidatura")
                 }
-            )
+
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        confirmButton = {
+                            TextButton(onClick = { showDialog = false }) {
+                                Text("OK")
+                            }
+                        },
+                        title = { Text("Candidatura inviata") },
+                        text = { Text("La tua candidatura per '${job.title}' è stata inviata con successo!") }
+                    )
+                }
+            }
         }
     }
 }
