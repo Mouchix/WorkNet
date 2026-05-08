@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -121,7 +122,7 @@ fun ProfileScreen(
                         ProfileMenuItem(icon = Icons.Default.Description, label = "Il mio CV") { }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-                        ProfileMenuItem(icon = Icons.Default.ExitToApp, label = "Logout", isError = true) {
+                        ProfileMenuItem(icon = Icons.AutoMirrored.Filled.ExitToApp, label = "Logout", isError = true) {
                             viewModel.logout {
                                 // Torna alla home o al login dopo il logout
                                 navController.navigate(NavigationRoute.Home) {

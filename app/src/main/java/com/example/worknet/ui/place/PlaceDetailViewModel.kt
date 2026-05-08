@@ -8,6 +8,7 @@ import com.example.worknet.data.model.Application
 import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.data.repository.ApplicationRepository
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -51,12 +52,12 @@ class PlaceDetailViewModel(
 
     fun applyForJob(jobId: String, placeId: String, onComplete: () -> Unit) {
         viewModelScope.launch {
+            val userId = FirebaseAuth.getInstance().currentUser!!.uid
             val application = Application(
                 id = "${jobId}_${System.currentTimeMillis()}",
                 jobId = jobId,
                 placeId = placeId,
-                userId = "CURRENT_USER_ID",
-                message = "Candidatura inviata automaticamente",
+                userId = userId,
                 status = "pending",
                 createdAt = System.currentTimeMillis()
             )

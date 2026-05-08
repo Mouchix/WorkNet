@@ -22,6 +22,7 @@ class UserRepository(
     // Restituisce l'ID dell'utente attualmente loggato in Firebase Auth
     fun getCurrentUserId(): String? = auth.currentUser?.uid
 
+
     // Recupera i dati completi dell'utente loggato
     suspend fun getCurrentUser(): User? {
         val userId = getCurrentUserId() ?: return null
@@ -45,7 +46,24 @@ class UserRepository(
     // ---------------------------------------------------------
     suspend fun getUserById(userId: String): User? {
         val snapshot = usersCollection.document(userId).get().await()
-        return snapshot.toObject(User::class.java)
+        return if (snapshot.exists()) {
+            snapshot.toObject(User::class.java)
+        } else {
+            val newUser = User(
+                id = userId,
+                name = "Utente anonimo",
+                email = "",
+                birthDate = "",
+                description = "",
+                education = "",
+                residence = "",
+                photoUrl = null,
+                cvUrl = null,
+                savedJobs = emptyList()
+            )
+            usersCollection.document(userId).set(newUser).await()
+            newUser
+        }
     }
 
     // ---------------------------------------------------------
