@@ -16,6 +16,7 @@ import com.example.worknet.ui.home.HomeViewModel
 import com.example.worknet.ui.notifications.NotificationsScreen
 import com.example.worknet.ui.place.PlaceDetailScreen
 import com.example.worknet.ui.profile.ProfileScreen
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppNavigation() {
@@ -32,10 +33,8 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable<NavigationRoute.Home> {
-                //val homeViewModel: HomeViewModel = koinViewModel()
-                //val vm: HomeViewModel = koinViewModel()
-                HomeScreen(navController)
-                //HomeScreen(navController, homeViewModel)
+                val homeViewModel: HomeViewModel = koinViewModel()
+                HomeScreen(navController, homeViewModel)
             }
 
             composable<NavigationRoute.Favourites> { FavouritesScreen(navController) }

@@ -20,10 +20,9 @@ import com.example.worknet.ui.components.PlaceCard
 
 @Composable
 fun HomeScreen(
-    navController: NavHostController
-    //, viewModel: HomeViewModel
+    navController: NavHostController,
+    viewModel: HomeViewModel
 ) {
-    val viewModel = HomeViewModel(JobRepository(), PlaceRepository())
     val uiState by viewModel.uiState.collectAsState()
     val query by viewModel.searchQuery.collectAsState()
 
