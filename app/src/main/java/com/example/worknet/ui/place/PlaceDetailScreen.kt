@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 
 @Composable
 fun PlaceDetailScreen(
@@ -50,39 +51,55 @@ fun PlaceDetailScreen(
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
             ) {
-                // Immagine
                 item {
-                    if (!place.imageUrl.isNullOrEmpty()) {
-                        AsyncImage(
-                            model = place.imageUrl,
-                            contentDescription = "Immagine di ${place.title}",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(250.dp) // Altezza standard Material 3 per header
-                                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)), // Arrotonda solo il fondo
-                            contentScale = ContentScale.Crop // Taglia l'immagine per riempire lo spazio
-                        )
-                    } else {
-                        // Placeholder se non c'è l'immagine
-                        Surface(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(200.dp)
-                                .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp)),
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = Icons.Default.Image,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(48.dp),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(250.dp) // Definiamo l'altezza del contenitore
+                    ) {
+                        // 1. IMMAGINE (Sotto a tutto)
+                        if (!place.imageUrl.isNullOrEmpty()) {
+                            AsyncImage(
+                                model = place.imageUrl,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxSize() // Riempie tutto il Box
+                                    .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
+                                color = MaterialTheme.colorScheme.surfaceVariant
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(48.dp))
+                                }
                             }
+                        }
+
+                        // 2. TASTO INDIETRO (In alto a sinistra)
+                        FilledIconButton(
+                            onClick = { navController.popBackStack() },
+                            modifier = Modifier
+                                .align(Alignment.TopStart) // LO SPINGE IN ALTO A SINISTRA
+                                .padding(16.dp)      // Margine dal bordo dello schermo
+                                .size(40.dp),         // Dimensione standard M3
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            )
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = "Torna indietro",
+                                modifier = Modifier.size(24.dp)
+                            )
                         }
                     }
                 }
-
                 // Titolo, like button e descrizione
                 item {
                     Column(modifier = Modifier.padding(16.dp)) {
