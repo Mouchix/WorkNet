@@ -32,7 +32,6 @@ fun FavouritesScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .statusBarsPadding() // Gestisce lo spazio della barra di stato
                         .height(64.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -66,13 +65,12 @@ fun FavouritesScreen(
                         contentPadding = PaddingValues(16.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(state.favouritePlaces) { place ->
-                            // Riutilizziamo la PlaceCard della Home
+                        items(state.favouritePlaces) { item -> // 'item' è di tipo PlaceWithJobs
                             PlaceCard(
-                                place = place,
-                                jobs = emptyList(), // Opzionale: potresti caricare anche i job se vuoi
+                                place = item.place,
+                                jobs = item.jobs, // Passiamo la lista reale dei lavori
                                 onClick = {
-                                    navController.navigate(NavigationRoute.PlaceDetail(place.id))
+                                    navController.navigate(NavigationRoute.PlaceDetail(item.place.id))
                                 }
                             )
                         }

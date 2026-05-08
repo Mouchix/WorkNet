@@ -28,6 +28,6 @@ val appModule = module {
 
     viewModel { ProfileViewModel(get()) }
 
-    viewModel { FavouritesViewModel(get(), get()) }
+    viewModel { FavouritesViewModel(get(), get(), get()) }
 
 }
