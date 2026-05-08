@@ -6,7 +6,6 @@ data class Application(
     val placeId: String = "",
     val ownerId: String = "",
     val userId: String = "",
-    val message: String = "",
     val status: String = "pending", // pending | accepted | rejected
     val createdAt: Long = System.currentTimeMillis(),
     val contactEmail: String? = null,
