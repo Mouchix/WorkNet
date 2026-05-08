@@ -8,11 +8,13 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.example.worknet.ui.components.BottomBar
 import com.example.worknet.ui.home.HomeScreen
 import com.example.worknet.ui.favourites.FavouritesScreen
 import com.example.worknet.ui.home.HomeViewModel
 import com.example.worknet.ui.notifications.NotificationsScreen
+import com.example.worknet.ui.place.PlaceDetailScreen
 import com.example.worknet.ui.profile.ProfileScreen
 
 @Composable
@@ -39,6 +41,10 @@ fun AppNavigation() {
             composable<NavigationRoute.Favourites> { FavouritesScreen(navController) }
             composable<NavigationRoute.Notifications> { NotificationsScreen(navController) }
             composable<NavigationRoute.Profile> { ProfileScreen(navController) }
+            composable<NavigationRoute.PlaceDetail> { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationRoute.PlaceDetail>()
+                PlaceDetailScreen(navController, args.placeId)
+            }
         }
     }
 }

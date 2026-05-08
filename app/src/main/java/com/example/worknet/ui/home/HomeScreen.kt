@@ -1,6 +1,5 @@
 package com.example.worknet.ui.home
 
-import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -16,9 +15,9 @@ import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.ui.components.JobCard
 import androidx.compose.foundation.clickable
+import com.example.worknet.navigation.NavigationRoute
 import com.example.worknet.ui.components.PlaceCard
 
-@SuppressLint("ViewModelConstructorInComposable")
 @Composable
 fun HomeScreen(
     navController: NavHostController
