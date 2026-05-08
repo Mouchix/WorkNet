@@ -17,6 +17,7 @@ import com.example.worknet.ui.favourites.FavouritesScreen
 import com.example.worknet.ui.favourites.FavouritesViewModel
 import com.example.worknet.ui.home.HomeViewModel
 import com.example.worknet.ui.notifications.NotificationsScreen
+import com.example.worknet.ui.notifications.NotificationsViewModel
 import com.example.worknet.ui.place.PlaceDetailScreen
 import com.example.worknet.ui.place.PlaceDetailViewModel
 import com.example.worknet.ui.profile.ProfileScreen
@@ -63,8 +64,8 @@ fun AppNavigation() {
             }
 
             composable<NavigationRoute.Notifications> {
-                NotificationsScreen(navController, Modifier.padding(innerPadding))
-            }
+                val notificationsViewModel: NotificationsViewModel = koinViewModel()
+                NotificationsScreen(navController, notificationsViewModel, Modifier.padding(innerPadding)) }
 
             composable<NavigationRoute.Profile> {
                 val profileViewModel: ProfileViewModel = koinViewModel()
@@ -73,6 +74,8 @@ fun AppNavigation() {
 
             composable<NavigationRoute.PlaceDetail> { backStackEntry ->
                 val args = backStackEntry.toRoute<NavigationRoute.PlaceDetail>()
+
+                // Passiamo il placeId a Koin affinché possa iniettarlo nel ViewModel
                 val placeDetailViewModel: PlaceDetailViewModel = koinViewModel { parametersOf(args.placeId) }
 
                 // Qui NON passiamo l'innerPadding (o lo gestiamo internamente)
