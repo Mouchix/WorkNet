@@ -1,5 +1,6 @@
 package com.example.worknet.ui.profile
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -119,6 +120,9 @@ fun ProfileScreen(
                         }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
+                        ProfileMenuItem(icon = Icons.Default.AddCircleOutline, label = "Crea un ambiente di lavoro") { }
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
                         ProfileMenuItem(icon = Icons.Default.Description, label = "Il mio CV") { }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
@@ -167,15 +171,26 @@ fun ProfileMenuItem(
     onClick: () -> Unit
 ) {
     val color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+
     ListItem(
-        modifier = Modifier.fillMaxWidth().padding(0.dp),
-        headlineContent = { Text(label, color = color) },
-        leadingContent = { Icon(icon, contentDescription = null, tint = color) },
-        trailingContent = { Icon(Icons.Default.ChevronRight, contentDescription = null) },
-        colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }, // Il click ora è parte integrante della riga
+        headlineContent = {
+            Text(label, color = color, style = MaterialTheme.typography.bodyLarge)
+        },
+        leadingContent = {
+            Icon(icon, contentDescription = null, tint = color)
+        },
+        trailingContent = {
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.outline // Colore più discreto per la freccia
+            )
+        },
+        colors = ListItemDefaults.colors(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent
+        )
     )
-    // Se vuoi rendere cliccabile il ListItem, usa Modifier.clickable
-    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth(), color = androidx.compose.ui.graphics.Color.Transparent) {
-        // Contenuto sopra
-    }
 }
