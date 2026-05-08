@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.worknet.data.model.Job
 import com.example.worknet.data.model.Place
 import com.example.worknet.data.model.Application
+import com.example.worknet.data.model.Notification
 import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.data.repository.ApplicationRepository
 import com.example.worknet.data.repository.UserRepository
+import com.example.worknet.data.repository.NotificationRepository
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,7 +28,8 @@ class PlaceDetailViewModel(
     private val placeRepository: PlaceRepository,
     private val jobRepository: JobRepository,
     private val userRepository: UserRepository,
-    private val applicationRepository: ApplicationRepository
+    private val applicationRepository: ApplicationRepository,
+    private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PlaceDetailUiState>(PlaceDetailUiState.Loading)
@@ -89,6 +92,32 @@ class PlaceDetailViewModel(
                 createdAt = System.currentTimeMillis()
             )
             applicationRepository.createApplication(application)
+
+            // Recupo il place per sapere chi è il proprietario
+            val place = placeRepository.getPlaceById(placeId)
+            val ownerId = place?.ownerId
+
+            if (ownerId != null) {
+                // 3. Crea la notifica per il proprietario
+                val ownerNotification = Notification(
+                    id = "notif_${System.currentTimeMillis()}",
+                    title = "Nuova candidatura ricevuta",
+                    message = "Hai ricevuto una candidatura per ${place.title}",
+                    type = "info",
+                    placeId = placeId
+                )
+
+                notificationRepository.createNotification(ownerId, ownerNotification)
+            }
+
+            val userNotification = Notification(
+                id = "notif_${System.currentTimeMillis()}",
+                title = "Candidatura inviata",
+                message = "Hai inviato una candidatura a ${place?.title}",
+                type = "info",
+                placeId = placeId
+            )
+            notificationRepository.createNotification(userId, userNotification)
             onComplete()
         }
     }

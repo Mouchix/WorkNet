@@ -15,6 +15,7 @@ import com.example.worknet.ui.favourites.FavouritesScreen
 import com.example.worknet.ui.favourites.FavouritesViewModel
 import com.example.worknet.ui.home.HomeViewModel
 import com.example.worknet.ui.notifications.NotificationsScreen
+import com.example.worknet.ui.notifications.NotificationsViewModel
 import com.example.worknet.ui.place.PlaceDetailScreen
 import com.example.worknet.ui.place.PlaceDetailViewModel
 import com.example.worknet.ui.profile.ProfileScreen
@@ -46,7 +47,9 @@ fun AppNavigation() {
                 FavouritesScreen(navController, favViewModel)
             }
 
-            composable<NavigationRoute.Notifications> { NotificationsScreen(navController) }
+            composable<NavigationRoute.Notifications> {
+                val notificationsViewModel: NotificationsViewModel = koinViewModel()
+                NotificationsScreen(navController, notificationsViewModel) }
 
             composable<NavigationRoute.Profile> {
                 val profileViewModel: ProfileViewModel = koinViewModel()

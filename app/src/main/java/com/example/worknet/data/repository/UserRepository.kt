@@ -59,7 +59,7 @@ class UserRepository(
                 residence = "",
                 photoUrl = null,
                 cvUrl = null,
-                savedJobs = emptyList()
+                savedPlaces = emptyList()
             )
             usersCollection.document(userId).set(newUser).await()
             newUser
