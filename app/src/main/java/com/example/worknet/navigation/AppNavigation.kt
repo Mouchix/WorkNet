@@ -17,6 +17,7 @@ import com.example.worknet.ui.notifications.NotificationsScreen
 import com.example.worknet.ui.place.PlaceDetailScreen
 import com.example.worknet.ui.place.PlaceDetailViewModel
 import com.example.worknet.ui.profile.ProfileScreen
+import com.example.worknet.ui.profile.ProfileViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -41,15 +42,19 @@ fun AppNavigation() {
 
             composable<NavigationRoute.Favourites> { FavouritesScreen(navController) }
             composable<NavigationRoute.Notifications> { NotificationsScreen(navController) }
-            composable<NavigationRoute.Profile> { ProfileScreen(navController) }
+
+            composable<NavigationRoute.Profile> {
+                val profileViewModel: ProfileViewModel = koinViewModel()
+                ProfileScreen(navController, profileViewModel)
+            }
 
             composable<NavigationRoute.PlaceDetail> { backStackEntry ->
                 val args = backStackEntry.toRoute<NavigationRoute.PlaceDetail>()
 
                 // Passiamo il placeId a Koin affinché possa iniettarlo nel ViewModel
-                val viewModel: PlaceDetailViewModel = koinViewModel { parametersOf(args.placeId) }
+                val placeDetailViewModel: PlaceDetailViewModel = koinViewModel { parametersOf(args.placeId) }
 
-                PlaceDetailScreen(navController, viewModel)
+                PlaceDetailScreen(navController, placeDetailViewModel)
             }
         }
     }

@@ -16,6 +16,24 @@ class UserRepository(
     private val usersCollection = db.collection("users")
 
     // ---------------------------------------------------------
+    // GESTIONE SESSIONE (Metodi Standard aggiunti)
+    // ---------------------------------------------------------
+
+    // Restituisce l'ID dell'utente attualmente loggato in Firebase Auth
+    fun getCurrentUserId(): String? = auth.currentUser?.uid
+
+    // Recupera i dati completi dell'utente loggato
+    suspend fun getCurrentUser(): User? {
+        val userId = getCurrentUserId() ?: return null
+        return getUserById(userId)
+    }
+
+    // Effettua il logout dalla sessione
+    fun logout() {
+        auth.signOut()
+    }
+
+    // ---------------------------------------------------------
     // CREAZIONE UTENTE
     // ---------------------------------------------------------
     suspend fun createUser(user: User) {
