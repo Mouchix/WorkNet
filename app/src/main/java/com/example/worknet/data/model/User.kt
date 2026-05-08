@@ -10,6 +10,6 @@ data class User(
     val residence: String = "",
     val photoUrl: String? = null,
     val cvUrl: String? = null,
-    val savedJobs: List<String> = emptyList(),
+    val savedPlaces: List<String> = emptyList(),
     val fcmToken: String? = null
 )

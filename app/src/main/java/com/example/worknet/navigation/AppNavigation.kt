@@ -12,6 +12,7 @@ import androidx.navigation.toRoute
 import com.example.worknet.ui.components.BottomBar
 import com.example.worknet.ui.home.HomeScreen
 import com.example.worknet.ui.favourites.FavouritesScreen
+import com.example.worknet.ui.favourites.FavouritesViewModel
 import com.example.worknet.ui.home.HomeViewModel
 import com.example.worknet.ui.notifications.NotificationsScreen
 import com.example.worknet.ui.place.PlaceDetailScreen
@@ -40,7 +41,11 @@ fun AppNavigation() {
                 HomeScreen(navController, homeViewModel)
             }
 
-            composable<NavigationRoute.Favourites> { FavouritesScreen(navController) }
+            composable<NavigationRoute.Favourites> {
+                val favViewModel: FavouritesViewModel = koinViewModel()
+                FavouritesScreen(navController, favViewModel)
+            }
+
             composable<NavigationRoute.Notifications> { NotificationsScreen(navController) }
 
             composable<NavigationRoute.Profile> {

@@ -4,6 +4,7 @@ import com.example.worknet.data.repository.ApplicationRepository
 import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.data.repository.UserRepository
+import com.example.worknet.ui.favourites.FavouritesViewModel
 import com.example.worknet.ui.home.HomeViewModel
 import com.example.worknet.ui.place.PlaceDetailViewModel
 import com.example.worknet.ui.profile.ProfileViewModel
@@ -23,8 +24,10 @@ val appModule = module {
 
     viewModel { HomeViewModel(get(), get()) }
 
-    viewModel { params -> PlaceDetailViewModel(placeId = params.get(), get(), get(), get()) }
+    viewModel { params -> PlaceDetailViewModel(placeId = params.get(), get(), get(), get(), get()) }
 
     viewModel { ProfileViewModel(get()) }
+
+    viewModel { FavouritesViewModel(get(), get()) }
 
 }

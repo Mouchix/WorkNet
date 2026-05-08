@@ -40,9 +40,10 @@ fun PlaceCard(
 
             // Lista dei job
             jobs.forEach { job ->
-                JobCard(
-                    job = job,
-                    onClick = onClick // cliccare un job apre comunque il place
+                Text(
+                    text = job.title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }

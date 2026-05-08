@@ -8,6 +8,7 @@ import com.example.worknet.data.model.Application
 import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.data.repository.ApplicationRepository
+import com.example.worknet.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,14 +24,19 @@ class PlaceDetailViewModel(
     val placeId: String,
     private val placeRepository: PlaceRepository,
     private val jobRepository: JobRepository,
+    private val userRepository: UserRepository,
     private val applicationRepository: ApplicationRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow<PlaceDetailUiState>(PlaceDetailUiState.Loading)
     val uiState: StateFlow<PlaceDetailUiState> = _uiState.asStateFlow()
 
+    private val _isFavourite = MutableStateFlow(false)
+    val isFavourite: StateFlow<Boolean> = _isFavourite.asStateFlow()
+
     init {
         loadPlaceDetails()
+        checkIfFavourite()
     }
 
     private fun loadPlaceDetails() {
@@ -45,6 +51,27 @@ class PlaceDetailViewModel(
                 }
             } catch (e: Exception) {
                 _uiState.value = PlaceDetailUiState.Error
+            }
+        }
+    }
+
+    private fun checkIfFavourite() {
+        viewModelScope.launch {
+            val userId = userRepository.getCurrentUserId() ?: return@launch
+            val user = userRepository.getUserById(userId)
+            _isFavourite.value = user?.savedPlaces?.contains(placeId) ?: false
+        }
+    }
+
+    fun toggleFavourite() {
+        viewModelScope.launch {
+            val userId = userRepository.getCurrentUserId() ?: return@launch
+            if (_isFavourite.value) {
+                userRepository.removeFavoritePlace(userId, placeId)
+                _isFavourite.value = false
+            } else {
+                userRepository.addFavoritePlace(userId, placeId)
+                _isFavourite.value = true
             }
         }
     }

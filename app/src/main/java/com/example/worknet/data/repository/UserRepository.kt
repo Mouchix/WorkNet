@@ -89,21 +89,21 @@ class UserRepository(
     // ---------------------------------------------------------
     // GESTIONE PREFERITI
     // ---------------------------------------------------------
-    suspend fun addFavoriteJob(userId: String, jobId: String) {
+    suspend fun addFavoritePlace(userId: String, placeId: String) {
         usersCollection.document(userId)
-            .update("savedJobs", com.google.firebase.firestore.FieldValue.arrayUnion(jobId))
+            .update("savedPlaces", com.google.firebase.firestore.FieldValue.arrayUnion(placeId))
             .await()
     }
 
-    suspend fun removeFavoriteJob(userId: String, jobId: String) {
+    suspend fun removeFavoritePlace(userId: String, placeId: String) {
         usersCollection.document(userId)
-            .update("savedJobs", com.google.firebase.firestore.FieldValue.arrayRemove(jobId))
+            .update("savedPlaces", com.google.firebase.firestore.FieldValue.arrayRemove(placeId))
             .await()
     }
 
-    suspend fun getFavoriteJobIds(userId: String): List<String> {
+    suspend fun getFavoritePlaceIds(userId: String): List<String> {
         val user = getUserById(userId)
-        return user?.savedJobs ?: emptyList()
+        return user?.savedPlaces ?: emptyList()
     }
 
     // ---------------------------------------------------------
