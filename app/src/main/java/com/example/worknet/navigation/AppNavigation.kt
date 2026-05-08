@@ -3,11 +3,13 @@ package com.example.worknet.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
 import com.example.worknet.ui.components.BottomBar
 import com.example.worknet.ui.home.HomeScreen
@@ -26,40 +28,56 @@ import org.koin.core.parameter.parametersOf
 fun AppNavigation() {
     val navController = rememberNavController()
 
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    val showBottomBar = when {
+        currentRoute == null -> false
+        currentRoute.contains("Home") -> true
+        currentRoute.contains("Favourites") -> true
+        currentRoute.contains("Notifications") -> true
+        currentRoute.contains("Profile") -> true
+        else -> false
+    }
+
     Scaffold(
         bottomBar = {
-            BottomBar(navController)
+            if (showBottomBar) {
+                BottomBar(navController)
+            }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = NavigationRoute.Home,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier
         ) {
             composable<NavigationRoute.Home> {
                 val homeViewModel: HomeViewModel = koinViewModel()
-                HomeScreen(navController, homeViewModel)
+                HomeScreen(navController, homeViewModel, Modifier.padding(innerPadding))
             }
 
             composable<NavigationRoute.Favourites> {
                 val favViewModel: FavouritesViewModel = koinViewModel()
-                FavouritesScreen(navController, favViewModel)
+                FavouritesScreen(navController, favViewModel, Modifier.padding(innerPadding))
             }
 
-            composable<NavigationRoute.Notifications> { NotificationsScreen(navController) }
+            composable<NavigationRoute.Notifications> {
+                NotificationsScreen(navController, Modifier.padding(innerPadding))
+            }
 
             composable<NavigationRoute.Profile> {
                 val profileViewModel: ProfileViewModel = koinViewModel()
-                ProfileScreen(navController, profileViewModel)
+                ProfileScreen(navController, profileViewModel, Modifier.padding(innerPadding))
             }
 
             composable<NavigationRoute.PlaceDetail> { backStackEntry ->
                 val args = backStackEntry.toRoute<NavigationRoute.PlaceDetail>()
-
-                // Passiamo il placeId a Koin affinché possa iniettarlo nel ViewModel
                 val placeDetailViewModel: PlaceDetailViewModel = koinViewModel { parametersOf(args.placeId) }
 
-                PlaceDetailScreen(navController, placeDetailViewModel)
+                // Qui NON passiamo l'innerPadding (o lo gestiamo internamente)
+                // così l'immagine può andare sotto la barra di stato
+                PlaceDetailScreen(navController, placeDetailViewModel, Modifier.padding(innerPadding))
             }
         }
     }

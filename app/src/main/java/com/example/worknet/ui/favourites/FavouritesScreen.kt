@@ -18,11 +18,13 @@ import com.example.worknet.ui.components.PlaceCard // Assicurati che sia pubblic
 @Composable
 fun FavouritesScreen(
     navController: NavHostController,
-    viewModel: FavouritesViewModel
+    viewModel: FavouritesViewModel,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             Surface(
                 modifier = Modifier.fillMaxWidth(),

@@ -25,7 +25,8 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 @Composable
 fun PlaceDetailScreen(
     navController: NavHostController,
-    viewModel: PlaceDetailViewModel
+    viewModel: PlaceDetailViewModel,
+    modifier: Modifier = Modifier
 ) {
     // Osserviamo lo stato del ViewModel in modo sicuro per il ciclo di vita
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -49,7 +50,7 @@ fun PlaceDetailScreen(
             val jobs = state.jobs
 
             LazyColumn(
-                modifier = Modifier.fillMaxSize()
+                modifier = modifier.fillMaxSize()
             ) {
                 item {
                     Box(

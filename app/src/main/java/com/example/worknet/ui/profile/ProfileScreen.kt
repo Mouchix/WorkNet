@@ -24,7 +24,8 @@ import com.example.worknet.navigation.NavigationRoute
 @Composable
 fun ProfileScreen(
     navController: NavHostController,
-    viewModel: ProfileViewModel
+    viewModel: ProfileViewModel,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
@@ -39,7 +40,7 @@ fun ProfileScreen(
         is ProfileUiState.Error -> {
             // Gestione se l'utente non è loggato o c'è un errore
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -54,7 +55,7 @@ fun ProfileScreen(
             val user = state.user
 
             Column(
-                modifier = Modifier
+                modifier = modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
                     .padding(16.dp),
@@ -118,6 +119,9 @@ fun ProfileScreen(
                         ProfileMenuItem(icon = Icons.Default.Edit, label = "Modifica Account") {
                             // navController.navigate(NavigationRoute.EditProfile)
                         }
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                        ProfileMenuItem(icon = Icons.Default.Business, label = "I tuoi ambienti di lavoro") { }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
                         ProfileMenuItem(icon = Icons.Default.AddCircleOutline, label = "Crea un ambiente di lavoro") { }

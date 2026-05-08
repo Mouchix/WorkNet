@@ -21,12 +21,13 @@ import com.example.worknet.ui.components.PlaceCard
 @Composable
 fun HomeScreen(
     navController: NavHostController,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val query by viewModel.searchQuery.collectAsState()
 
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         // Search Bar
         OutlinedTextField(
             value = query,
