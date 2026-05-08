@@ -8,168 +8,107 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import com.example.worknet.data.model.Application
-import com.example.worknet.data.model.Job
-import com.example.worknet.data.model.Place
-import com.example.worknet.data.repository.ApplicationRepository
-import com.example.worknet.data.repository.JobRepository
-import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.ui.components.JobCard
-import kotlinx.coroutines.launch
 
 @Composable
 fun PlaceDetailScreen(
     navController: NavHostController,
-    placeId: String
+    viewModel: PlaceDetailViewModel
 ) {
-    val placeRepository = remember { PlaceRepository() }
-    val jobRepository = remember { JobRepository() }
-    val scope = rememberCoroutineScope()
+    // Osserviamo lo stato del ViewModel in modo sicuro per il ciclo di vita
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    var place by remember { mutableStateOf<Place?>(null) }
-    var jobs by remember { mutableStateOf<List<Job>>(emptyList()) }
-    var isLoading by remember { mutableStateOf(true) }
-
-    LaunchedEffect(placeId) {
-        val p = placeRepository.getPlaceById(placeId)
-        place = p
-
-        if (p != null) {
-            jobs = jobRepository.getJobsByPlace(p.id)
-        }
-
-        isLoading = false
-    }
-
-    if (isLoading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
-        }
-        return
-    }
-
-    if (place == null) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Errore: attività non trovata.")
-        }
-        return
-    }
-
-    // UI principale
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-
-        // IMMAGINE (placeholder per ora)
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Immagine del locale", style = MaterialTheme.typography.bodyMedium)
+    when (val state = uiState) {
+        is PlaceDetailUiState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
         }
 
-        // TITOLO
-        item {
-            Text(
-                text = place!!.title,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary
-            )
-        }
-
-        // DESCRIZIONE
-        item {
-            Text(
-                text = place!!.description,
-                style = MaterialTheme.typography.bodyLarge
-            )
-        }
-
-        // PROPRIETARIO
-        item {
-            Column {
-                Text(
-                    text = "Proprietario",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = place!!.ownerId,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
+        is PlaceDetailUiState.Error -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Errore: attività non trovata.")
             }
         }
 
-        // LISTA JOB
-        item {
-            Text(
-                text = "Posizioni aperte",
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
+        is PlaceDetailUiState.Success -> {
+            val place = state.place
+            val jobs = state.jobs
 
-        items(jobs) { job ->
-            var showDialog by remember { mutableStateOf(false) }
-            var isSending by remember { mutableStateOf(false) }
-
-            Column(
+            LazyColumn(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                JobCard(
-                    job = job,
-                    onClick = {}
-                )
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = {
-                        isSending = true
-
-                        // CREA LA CANDIDATURA
-                        val application = Application(
-                            id = "${job.id}_${System.currentTimeMillis()}",
-                            jobId = job.id,
-                            placeId = place!!.id,
-                            userId = "CURRENT_USER_ID", // poi lo prendiamo da Firebase Auth
-                            message = "Candidatura inviata automaticamente",
-                            status = "pending",
-                            createdAt = System.currentTimeMillis()
-                        )
-
-                        scope.launch {
-                            ApplicationRepository().createApplication(application)
-                            isSending = false
-                            showDialog = true
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !isSending
-                ) {
-                    Text(if (isSending) "Invio..." else "Manda candidatura")
+                item {
+                    Text(
+                        text = place.title,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = place.description,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
 
-                if (showDialog) {
-                    AlertDialog(
-                        onDismissRequest = { showDialog = false },
-                        confirmButton = {
-                            TextButton(onClick = { showDialog = false }) {
-                                Text("OK")
-                            }
-                        },
-                        title = { Text("Candidatura inviata") },
-                        text = { Text("La tua candidatura per '${job.title}' è stata inviata con successo!") }
+                item {
+                    Text(
+                        text = "Posizioni aperte",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(top = 16.dp)
                     )
+                }
+
+                items(jobs) { job ->
+                    var showDialog by remember { mutableStateOf(false) }
+                    var isSending by remember { mutableStateOf(false) }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                    ) {
+                        JobCard(
+                            job = job,
+                            onClick = { /* Dettaglio job se necessario */ }
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Button(
+                            onClick = {
+                                isSending = true
+                                // Deleghiamo la logica di candidatura al ViewModel
+                                viewModel.applyForJob(job.id, place.id) {
+                                    isSending = false
+                                    showDialog = true
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !isSending
+                        ) {
+                            Text(if (isSending) "Invio..." else "Manda candidatura")
+                        }
+
+                        if (showDialog) {
+                            AlertDialog(
+                                onDismissRequest = { showDialog = false },
+                                confirmButton = {
+                                    TextButton(onClick = { showDialog = false }) {
+                                        Text("OK")
+                                    }
+                                },
+                                title = { Text("Candidatura inviata") },
+                                text = { Text("La tua candidatura per '${job.title}' è stata inviata con successo!") }
+                            )
+                        }
+                    }
                 }
             }
         }

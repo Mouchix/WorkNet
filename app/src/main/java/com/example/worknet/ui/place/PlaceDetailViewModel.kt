@@ -1,0 +1,67 @@
+package com.example.worknet.ui.place
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.worknet.data.model.Job
+import com.example.worknet.data.model.Place
+import com.example.worknet.data.model.Application
+import com.example.worknet.data.repository.JobRepository
+import com.example.worknet.data.repository.PlaceRepository
+import com.example.worknet.data.repository.ApplicationRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+
+sealed class PlaceDetailUiState {
+    object Loading : PlaceDetailUiState()
+    data class Success(val place: Place, val jobs: List<Job>) : PlaceDetailUiState()
+    object Error : PlaceDetailUiState()
+}
+
+class PlaceDetailViewModel(
+    val placeId: String,
+    private val placeRepository: PlaceRepository,
+    private val jobRepository: JobRepository,
+    private val applicationRepository: ApplicationRepository
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow<PlaceDetailUiState>(PlaceDetailUiState.Loading)
+    val uiState: StateFlow<PlaceDetailUiState> = _uiState.asStateFlow()
+
+    init {
+        loadPlaceDetails()
+    }
+
+    private fun loadPlaceDetails() {
+        viewModelScope.launch {
+            try {
+                val place = placeRepository.getPlaceById(placeId)
+                if (place != null) {
+                    val jobs = jobRepository.getJobsByPlace(placeId)
+                    _uiState.value = PlaceDetailUiState.Success(place, jobs)
+                } else {
+                    _uiState.value = PlaceDetailUiState.Error
+                }
+            } catch (e: Exception) {
+                _uiState.value = PlaceDetailUiState.Error
+            }
+        }
+    }
+
+    fun applyForJob(jobId: String, placeId: String, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            val application = Application(
+                id = "${jobId}_${System.currentTimeMillis()}",
+                jobId = jobId,
+                placeId = placeId,
+                userId = "CURRENT_USER_ID",
+                message = "Candidatura inviata automaticamente",
+                status = "pending",
+                createdAt = System.currentTimeMillis()
+            )
+            applicationRepository.createApplication(application)
+            onComplete()
+        }
+    }
+}

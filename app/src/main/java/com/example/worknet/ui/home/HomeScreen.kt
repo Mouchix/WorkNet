@@ -51,7 +51,7 @@ fun HomeScreen(
                             PlaceCard(
                                 place = place,
                                 jobs = jobs,
-                                onClick = { navController.navigate("placeDetail/${place.id}") }
+                                onClick = { navController.navigate(NavigationRoute.PlaceDetail(placeId = place.id)) }
                             )
                         }
                     }
