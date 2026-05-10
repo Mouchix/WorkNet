@@ -20,6 +20,8 @@ import com.example.worknet.ui.notifications.NotificationsScreen
 import com.example.worknet.ui.notifications.NotificationsViewModel
 import com.example.worknet.ui.place.PlaceDetailScreen
 import com.example.worknet.ui.place.PlaceDetailViewModel
+import com.example.worknet.ui.profile.AddPlaceScreen
+import com.example.worknet.ui.profile.AddPlaceViewModel
 import com.example.worknet.ui.profile.ProfileScreen
 import com.example.worknet.ui.profile.ProfileViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -86,6 +88,11 @@ fun AppNavigation() {
                 // Qui NON passiamo l'innerPadding (o lo gestiamo internamente)
                 // così l'immagine può andare sotto la barra di stato
                 PlaceDetailScreen(navController, placeDetailViewModel, Modifier.padding(innerPadding))
+            }
+
+            composable<NavigationRoute.AddPlace> {
+                val addPlaceViewModel: AddPlaceViewModel = koinViewModel()
+                AddPlaceScreen(navController, addPlaceViewModel)
             }
         }
     }

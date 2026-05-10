@@ -59,6 +59,10 @@ class HomeViewModel(
         }
     }
 
+    fun refreshData() {
+        loadData()
+    }
+
     fun onQueryChange(newQuery: String) {
         _searchQuery.value = newQuery
     }

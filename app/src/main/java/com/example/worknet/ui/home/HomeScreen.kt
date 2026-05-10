@@ -15,8 +15,11 @@ import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.ui.components.JobCard
 import androidx.compose.foundation.clickable
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.repeatOnLifecycle
 import com.example.worknet.navigation.NavigationRoute
 import com.example.worknet.ui.components.PlaceCard
+import androidx.lifecycle.Lifecycle
 
 @Composable
 fun HomeScreen(
@@ -26,6 +29,13 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val query by viewModel.searchQuery.collectAsState()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.refreshData() // Metodo che rifà la chiamata al DB
+        }
+    }
 
     Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
         // Search Bar

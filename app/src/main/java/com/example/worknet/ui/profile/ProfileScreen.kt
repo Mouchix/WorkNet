@@ -124,7 +124,9 @@ fun ProfileScreen(
                         ProfileMenuItem(icon = Icons.Default.Business, label = "I tuoi ambienti di lavoro") { }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-                        ProfileMenuItem(icon = Icons.Default.AddCircleOutline, label = "Crea un ambiente di lavoro") { }
+                        ProfileMenuItem(icon = Icons.Default.AddCircleOutline, label = "Crea un ambiente di lavoro") {
+                            navController.navigate(NavigationRoute.AddPlace)
+                        }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
                         ProfileMenuItem(icon = Icons.Default.Description, label = "Il mio CV") { }

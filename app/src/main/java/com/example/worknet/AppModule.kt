@@ -9,6 +9,7 @@ import com.example.worknet.ui.favourites.FavouritesViewModel
 import com.example.worknet.ui.home.HomeViewModel
 import com.example.worknet.ui.notifications.NotificationsViewModel
 import com.example.worknet.ui.place.PlaceDetailViewModel
+import com.example.worknet.ui.profile.AddPlaceViewModel
 import com.example.worknet.ui.profile.ProfileViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -34,4 +35,6 @@ val appModule = module {
     viewModel { FavouritesViewModel(get(), get(), get()) }
 
     viewModel { NotificationsViewModel(get(), get()) }
+
+    viewModel { AddPlaceViewModel(get(), get(), get()) }
 }

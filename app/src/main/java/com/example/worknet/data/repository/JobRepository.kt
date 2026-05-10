@@ -46,14 +46,6 @@ class JobRepository(
         jobsCollection(placeId).document(jobId).update("description", description).await()
     }
 
-    suspend fun updateSalary(placeId: String, jobId: String, salary: String?) {
-        jobsCollection(placeId).document(jobId).update("salary", salary).await()
-    }
-
-    suspend fun updateContractType(placeId: String, jobId: String, contractType: String?) {
-        jobsCollection(placeId).document(jobId).update("contractType", contractType).await()
-    }
-
     // ---------------------------------------------------------
     // ELIMINAZIONE JOB
     // ---------------------------------------------------------
