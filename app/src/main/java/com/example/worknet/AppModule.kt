@@ -5,6 +5,7 @@ import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.NotificationRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.data.repository.UserRepository
+import com.example.worknet.ui.components.bottomBar.BottomBarViewModel
 import com.example.worknet.ui.favourites.FavouritesViewModel
 import com.example.worknet.ui.home.HomeViewModel
 import com.example.worknet.ui.notifications.NotificationsViewModel
@@ -37,4 +38,5 @@ val appModule = module {
     viewModel { NotificationsViewModel(get(), get()) }
 
     viewModel { AddPlaceViewModel(get(), get(), get()) }
+    viewModel { BottomBarViewModel(get(), get()) }
 }

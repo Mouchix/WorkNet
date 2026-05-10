@@ -84,4 +84,20 @@ class NotificationRepository(
         val snapshot = notificationsCollection(userId).get().await()
         snapshot.documents.forEach { it.reference.delete().await() }
     }
+
+    fun observeUnreadNotifications(userId: String): Flow<List<Notification>> = callbackFlow {
+        val listener = notificationsCollection(userId)
+            .whereEqualTo("read", false)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+                val list = snapshot?.toObjects(Notification::class.java) ?: emptyList()
+                trySend(list)
+            }
+
+        awaitClose { listener.remove() }
+    }
+
 }

@@ -6,12 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
-import com.example.worknet.ui.components.BottomBar
+import com.example.worknet.ui.components.bottomBar.BottomBar
+import com.example.worknet.ui.components.bottomBar.BottomBarViewModel
 import com.example.worknet.ui.home.HomeScreen
 import com.example.worknet.ui.favourites.FavouritesScreen
 import com.example.worknet.ui.favourites.FavouritesViewModel
@@ -46,7 +46,8 @@ fun AppNavigation() {
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
-                BottomBar(navController)
+                val bottomBarViewModel: BottomBarViewModel = koinViewModel()
+                BottomBar(navController, bottomBarViewModel)
             }
         }
     ) { innerPadding ->

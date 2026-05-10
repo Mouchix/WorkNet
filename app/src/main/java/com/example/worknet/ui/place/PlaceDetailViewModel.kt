@@ -13,6 +13,7 @@ import com.example.worknet.data.repository.ApplicationRepository
 import com.example.worknet.data.repository.UserRepository
 import com.example.worknet.data.repository.NotificationRepository
 import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -191,5 +192,8 @@ class PlaceDetailViewModel(
         return userRepository.getUserById(userId)
     }
 
+    fun getApplicationsForJob(jobId: String): Flow<List<Application>> {
+        return applicationRepository.observeApplications(placeId, jobId)
+    }
 
 }
