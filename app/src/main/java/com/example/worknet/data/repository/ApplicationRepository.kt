@@ -67,7 +67,7 @@ class ApplicationRepository(
             .await()
     }
 
-    suspend fun updateStatus(
+    suspend fun updateApplicationStatus(
         placeId: String,
         jobId: String,
         applicationId: String,

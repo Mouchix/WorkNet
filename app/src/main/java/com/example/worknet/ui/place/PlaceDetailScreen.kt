@@ -21,6 +21,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import com.example.worknet.ui.components.OwnerJobCard
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun PlaceDetailScreen(
@@ -48,6 +50,8 @@ fun PlaceDetailScreen(
         is PlaceDetailUiState.Success -> {
             val place = state.place
             val jobs = state.jobs
+            val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
+            val isOwner = place.ownerId == currentUserId
 
             LazyColumn(
                 modifier = modifier.fillMaxSize()
@@ -144,36 +148,63 @@ fun PlaceDetailScreen(
                         )
                     }
                 }
-
-                items(jobs) { job ->
-                    Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                if (isOwner) {
+                    // Vista proprietario
+                    items(jobs) { job ->
                         var showDialog by remember { mutableStateOf(false) }
-                        var isSending by remember { mutableStateOf(false) }
-
-                        JobCard(
+                        OwnerJobCard(
                             job = job,
-                            isSending = isSending,
-                            onApplyClick = {
-                                isSending = true
-                                viewModel.applyForJob(job.id, place.id) {
-                                    isSending = false
-                                    showDialog = true
-                                }
-                            }
-                        )
+                            viewModel = viewModel,
+                            onComplete = {
+                                showDialog = true
+                            })
 
                         if (showDialog) {
                             AlertDialog(
                                 onDismissRequest = { showDialog = false },
                                 confirmButton = {
                                     TextButton(onClick = { showDialog = false }) {
-                                        Text("Chiudi")
+                                        Text("Ok")
                                     }
                                 },
-                                title = { Text("Candidatura inviata") },
-                                text = { Text("La tua candidatura per '${job.title}' è stata registrata con successo.") },
+                                title = { Text("Risposta candidatura inviata") },
+                                text = { Text("La tua risposta alla candidatura per '${job.title}' è stata inviata con successo.") },
                                 icon = { Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
                             )
+                        }
+                    }
+                } else {
+                    // Vista utente normale (la tua attuale)
+                    items(jobs) { job ->
+                        Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+                            var showDialog by remember { mutableStateOf(false) }
+                            var isSending by remember { mutableStateOf(false) }
+
+                            JobCard(
+                                job = job,
+                                isSending = isSending,
+                                onApplyClick = {
+                                    isSending = true
+                                    viewModel.applyForJob(job.id, place.id) {
+                                        isSending = false
+                                        showDialog = true
+                                    }
+                                }
+                            )
+
+                            if (showDialog) {
+                                AlertDialog(
+                                    onDismissRequest = { showDialog = false },
+                                    confirmButton = {
+                                        TextButton(onClick = { showDialog = false }) {
+                                            Text("OK")
+                                        }
+                                    },
+                                    title = { Text("Candidatura inviata") },
+                                    text = { Text("La tua candidatura per '${job.title}' è stata registrata con successo.") },
+                                    icon = { Icon(Icons.Default.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
+                                )
+                            }
                         }
                     }
                 }
