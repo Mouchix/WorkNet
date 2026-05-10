@@ -6,6 +6,7 @@ import com.example.worknet.data.model.Job
 import com.example.worknet.data.model.Place
 import com.example.worknet.data.model.Application
 import com.example.worknet.data.model.Notification
+import com.example.worknet.data.model.User
 import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.data.repository.ApplicationRepository
@@ -28,7 +29,7 @@ class PlaceDetailViewModel(
     private val placeRepository: PlaceRepository,
     private val jobRepository: JobRepository,
     private val userRepository: UserRepository,
-    private val applicationRepository: ApplicationRepository,
+    val applicationRepository: ApplicationRepository,
     private val notificationRepository: NotificationRepository
 ) : ViewModel() {
 
@@ -121,4 +122,74 @@ class PlaceDetailViewModel(
             onComplete()
         }
     }
+
+    fun acceptApplication(application: Application, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            val place = placeRepository.getPlaceById(application.placeId)
+            val user = userRepository.getUserById(application.userId)
+            val ownerId = place?.ownerId
+
+            applicationRepository.updateApplicationStatus(application.placeId, application.jobId, application.id, "accepted")
+
+            if (ownerId != null) {
+                val ownerNotification = Notification(
+                    id = "notif_${System.currentTimeMillis()}",
+                    title = "Candidatura accetta",
+                    message = "Hai accettato una candidatura per ${place.title} da parte di ${user!!.name}",
+                    type = "info",
+                    placeId = placeId
+                )
+
+                notificationRepository.createNotification(ownerId, ownerNotification)
+            }
+
+            val acceptNotification = Notification(
+                id = "notif_${System.currentTimeMillis()}",
+                title = "Candidatura accettata",
+                message = "La tua candidatura per ${place?.title} è stata accettata, complimenti!",
+                type = "response",
+                placeId = placeId
+            )
+            notificationRepository.createNotification(application.userId, acceptNotification)
+            onComplete()
+        }
+    }
+
+    fun rejectApplication(application: Application, onComplete: () -> Unit) {
+        viewModelScope.launch {
+            val place = placeRepository.getPlaceById(application.placeId)
+            val user = userRepository.getUserById(application.userId)
+            val ownerId = place?.ownerId
+
+            applicationRepository.updateApplicationStatus(application.placeId, application.jobId, application.id, "rejected")
+
+            if (ownerId != null) {
+                val ownerNotification = Notification(
+                    id = "notif_${System.currentTimeMillis()}",
+                    title = "Candidatura rifiutata",
+                    message = "Hai rifiutato una candidatura per ${place.title} da parte di ${user!!.name}",
+                    type = "info",
+                    placeId = placeId
+                )
+
+                notificationRepository.createNotification(ownerId, ownerNotification)
+            }
+
+            val rejectNotification = Notification(
+            id = "notif_${System.currentTimeMillis()}",
+            title = "Candidatura rifiutata",
+            message = "Ci dispiace, ma la tua candidatura per ${place?.title} è stata rifiutata.",
+            type = "response",
+            placeId = placeId
+        )
+            notificationRepository.createNotification(application.userId, rejectNotification)
+            onComplete()
+        }
+    }
+
+    suspend fun loadUser(userId: String): User? {
+        return userRepository.getUserById(userId)
+    }
+
+
 }
