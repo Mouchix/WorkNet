@@ -2,19 +2,12 @@ package com.example.worknet.ui.home
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.worknet.data.model.Job
-import com.example.worknet.data.model.Place
-import com.example.worknet.data.repository.JobRepository
-import com.example.worknet.data.repository.PlaceRepository
-import com.example.worknet.ui.components.JobCard
-import androidx.compose.foundation.clickable
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.worknet.navigation.NavigationRoute

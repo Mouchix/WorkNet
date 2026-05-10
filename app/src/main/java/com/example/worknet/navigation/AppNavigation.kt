@@ -20,10 +20,12 @@ import com.example.worknet.ui.notifications.NotificationsScreen
 import com.example.worknet.ui.notifications.NotificationsViewModel
 import com.example.worknet.ui.place.PlaceDetailScreen
 import com.example.worknet.ui.place.PlaceDetailViewModel
-import com.example.worknet.ui.profile.AddPlaceScreen
-import com.example.worknet.ui.profile.AddPlaceViewModel
+import com.example.worknet.ui.profile.addplace.AddPlaceScreen
+import com.example.worknet.ui.profile.addplace.AddPlaceViewModel
 import com.example.worknet.ui.profile.ProfileScreen
 import com.example.worknet.ui.profile.ProfileViewModel
+import com.example.worknet.ui.profile.myPlaces.MyPlacesScreen
+import com.example.worknet.ui.profile.myPlaces.MyPlacesViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -95,6 +97,12 @@ fun AppNavigation() {
                 val addPlaceViewModel: AddPlaceViewModel = koinViewModel()
                 AddPlaceScreen(navController, addPlaceViewModel)
             }
+
+            composable<NavigationRoute.MyPlaces> {
+                val vm: MyPlacesViewModel = koinViewModel()
+                MyPlacesScreen(navController, vm)
+            }
+
         }
     }
 }

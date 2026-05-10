@@ -3,7 +3,7 @@ package com.example.worknet.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.worknet.data.model.User
-import com.example.worknet.data.repository.UserRepository // Assicurati che il path sia corretto
+import com.example.worknet.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

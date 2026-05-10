@@ -1,11 +1,14 @@
-package com.example.worknet.ui.profile
+package com.example.worknet.ui.profile.addplace
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.location.Address
 import android.location.Geocoder
 import android.net.Uri
-import android.widget.Toast
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.worknet.data.model.Job
@@ -19,10 +22,10 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
-import java.util.*
+import java.util.Locale
+import java.util.UUID
 
 class AddPlaceViewModel(
     private val placeRepository: PlaceRepository,
@@ -45,7 +48,7 @@ class AddPlaceViewModel(
     // --- STATO UI ---
     var isGeocoding by mutableStateOf(false)
     var isSaving by mutableStateOf(false)
-    var addressSuggestions = mutableStateListOf<android.location.Address>()
+    var addressSuggestions = mutableStateListOf<Address>()
         private set
     private var searchJob: kotlinx.coroutines.Job? = null
 
@@ -128,7 +131,7 @@ class AddPlaceViewModel(
         }
     }
 
-    fun selectAddress(address: android.location.Address) {
+    fun selectAddress(address: Address) {
         // Componiamo l'indirizzo formattato
         val fullAddress = "${address.thoroughfare ?: ""}, ${address.subThoroughfare ?: ""}, ${address.locality ?: ""}"
         placeAddress = fullAddress.trim().trim(',')
