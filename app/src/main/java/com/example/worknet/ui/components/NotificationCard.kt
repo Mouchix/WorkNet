@@ -20,17 +20,14 @@ fun NotificationCard(
 ) {
     val isUnread = !notification.read
 
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth().clickable{ onClick() },
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.elevatedCardColors(
+        colors = CardDefaults.cardColors(
             containerColor = if (isUnread)
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.25f)
             else
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
-        ),
-        elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = if (isUnread) 6.dp else 1.dp
+                MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

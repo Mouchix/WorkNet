@@ -29,7 +29,8 @@ import com.example.worknet.ui.components.NotificationCard
 fun NotificationsScreen(
     navController: NavHostController,
     viewModel: NotificationsViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val notifications by viewModel.uiState.collectAsState()
 
@@ -38,12 +39,12 @@ fun NotificationsScreen(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp // Crea l'effetto separazione tipico della TopAppBar
+                tonalElevation = 3.dp
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .statusBarsPadding() // Gestisce lo spazio della barra di stato
+                        .statusBarsPadding()
                         .height(64.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -56,10 +57,18 @@ fun NotificationsScreen(
                 }
             }
         }
-    ) { padding ->
+    ) { scaffoldPadding ->
         LazyColumn (
-            modifier = Modifier.padding(padding).fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
+            // Usiamo il modifier esterno ma senza padding che "tagliano" la vista
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                // Usiamo il padding della TopBar locale + margine estetico
+                top = scaffoldPadding.calculateTopPadding() + 16.dp,
+                end = 16.dp,
+                // Usiamo il padding della BottomBar esterna + margine estetico
+                bottom = innerPadding.calculateBottomPadding() + 16.dp 
+            ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ){
             items(notifications) { notification ->

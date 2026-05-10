@@ -2,19 +2,12 @@ package com.example.worknet.ui.notifications
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.worknet.data.model.Job
 import com.example.worknet.data.model.Notification
-import com.example.worknet.data.model.Place
-import com.example.worknet.data.repository.JobRepository
 import com.example.worknet.data.repository.NotificationRepository
-import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.data.repository.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class NotificationsViewModel(
@@ -33,7 +26,8 @@ class NotificationsViewModel(
         viewModelScope.launch {
             val userId = userRepository.getCurrentUserId() ?: return@launch
             notificationRepository.observeNotifications(userId).collect { notifications ->
-                _uiState.value = notifications
+                // Ordiniamo le notifiche: le più recenti (createdAt più alto) in cima
+                _uiState.value = notifications.sortedByDescending { it.createdAt }
             }
         }
     }
