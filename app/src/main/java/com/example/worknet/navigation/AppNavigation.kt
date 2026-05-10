@@ -65,7 +65,12 @@ fun AppNavigation() {
 
             composable<NavigationRoute.Notifications> {
                 val notificationsViewModel: NotificationsViewModel = koinViewModel()
-                NotificationsScreen(navController, notificationsViewModel, Modifier.padding(innerPadding)) }
+                NotificationsScreen(
+                    navController = navController, 
+                    viewModel = notificationsViewModel,
+                    innerPadding = innerPadding
+                ) 
+            }
 
             composable<NavigationRoute.Profile> {
                 val profileViewModel: ProfileViewModel = koinViewModel()
