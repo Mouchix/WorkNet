@@ -10,10 +10,12 @@ import androidx.compose.ui.unit.dp
 import com.example.worknet.data.model.Job
 import com.example.worknet.data.model.Application
 import androidx.compose.runtime.*
+import androidx.navigation.NavHostController
+import com.example.worknet.navigation.NavigationRoute
 import com.example.worknet.ui.place.PlaceDetailViewModel
 
 @Composable
-fun OwnerJobCard(job: Job, viewModel: PlaceDetailViewModel, onComplete: () -> Unit) {
+fun OwnerJobCard(navController: NavHostController, job: Job, viewModel: PlaceDetailViewModel, onComplete: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
 
     val applications by viewModel.getApplicationsForJob(job.id)
@@ -32,8 +34,10 @@ fun OwnerJobCard(job: Job, viewModel: PlaceDetailViewModel, onComplete: () -> Un
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(job.title, style = MaterialTheme.typography.titleMedium)
-                Button(onClick = { expanded = !expanded }) {
-                    Text(if (expanded) "Nascondi candidature" else "Mostra candidature")
+                if (applications.isNotEmpty()) {
+                    Button(onClick = { expanded = !expanded }) {
+                        Text(if (expanded) "Nascondi candidature" else "Mostra candidature")
+                    }
                 }
             }
 
@@ -42,7 +46,9 @@ fun OwnerJobCard(job: Job, viewModel: PlaceDetailViewModel, onComplete: () -> Un
                 applications
                     .filter { it.status == "pending" }
                     .forEach { application ->
-                        CandidateRow(application, viewModel, onComplete)
+                        CandidateRow(application, viewModel, onUserClick = { userId ->
+                            navController.navigate(NavigationRoute.User(userId = userId))},
+                            onComplete)
                     }
             }
         }

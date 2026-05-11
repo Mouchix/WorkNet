@@ -210,6 +210,7 @@ fun PlaceDetailScreen(
                     items(jobs) { job ->
                         var showDialog by remember { mutableStateOf(false) }
                         OwnerJobCard(
+                            navController = navController,
                             job = job,
                             viewModel = viewModel,
                             onComplete = {

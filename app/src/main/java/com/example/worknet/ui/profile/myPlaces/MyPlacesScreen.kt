@@ -1,7 +1,10 @@
 package com.example.worknet.ui.profile.myPlaces
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.worknet.navigation.NavigationRoute
 import com.example.worknet.ui.components.PlaceCard
-
 
 @Composable
 fun MyPlacesScreen(
@@ -38,8 +40,26 @@ fun MyPlacesScreen(
                         text = "My Places",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.align(Alignment.Center)
                     )
+                    FilledIconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier
+                            .align(Alignment.TopStart) // LO SPINGE IN ALTO A SINISTRA
+                            .padding(16.dp)      // Margine dal bordo dello schermo
+                            .size(40.dp),         // Dimensione standard M3
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                            contentColor = MaterialTheme.colorScheme.onSurface
+                        )
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Torna indietro",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }
