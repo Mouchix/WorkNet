@@ -23,6 +23,11 @@ import coil.compose.AsyncImage
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import com.example.worknet.ui.components.OwnerJobCard
 import com.google.firebase.auth.FirebaseAuth
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import com.example.worknet.navigation.NavigationRoute
 
 @Composable
 fun PlaceDetailScreen(
@@ -50,6 +55,7 @@ fun PlaceDetailScreen(
         is PlaceDetailUiState.Success -> {
             val place = state.place
             val jobs = state.jobs
+            val owner = state.owner
             val currentUserId = FirebaseAuth.getInstance().currentUser!!.uid
             val isOwner = place.ownerId == currentUserId
 
@@ -136,6 +142,56 @@ fun PlaceDetailScreen(
                             style = MaterialTheme.typography.bodyLarge
                         )
                         HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
+                    }
+                }
+
+                // Proprietario
+                item {
+                    if (owner != null) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "Proprietario",
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+
+                            Spacer(modifier = Modifier.height(12.dp))
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        // Navigazione al profilo (assicurati che la rotta sia corretta)
+                                        navController.navigate(NavigationRoute.User(userId = owner.id))
+                                    }
+                            ) {
+                                AsyncImage(
+                                    model = owner.photoUrl,
+                                    contentDescription = "Foto proprietario",
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape),
+                                    contentScale = ContentScale.Crop,
+                                    error = rememberVectorPainter(Icons.Default.AccountCircle),
+                                    placeholder = rememberVectorPainter(Icons.Default.AccountCircle)
+                                )
+
+                                Spacer(modifier = Modifier.width(16.dp))
+
+                                Text(
+                                    text = owner.name,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
+                        }
                     }
                 }
 

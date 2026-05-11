@@ -11,6 +11,7 @@ import com.example.worknet.ui.notifications.NotificationsViewModel
 import com.example.worknet.ui.place.PlaceDetailViewModel
 import com.example.worknet.ui.profile.AddPlaceViewModel
 import com.example.worknet.ui.profile.ProfileViewModel
+import com.example.worknet.ui.profile.UserViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -37,4 +38,6 @@ val appModule = module {
     viewModel { NotificationsViewModel(get(), get()) }
 
     viewModel { AddPlaceViewModel(get(), get(), get()) }
+
+    viewModel { params -> UserViewModel(params.get(),get(), get(), get()) }
 }

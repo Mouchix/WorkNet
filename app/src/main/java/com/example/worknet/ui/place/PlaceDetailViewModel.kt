@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 sealed class PlaceDetailUiState {
     object Loading : PlaceDetailUiState()
-    data class Success(val place: Place, val jobs: List<Job>) : PlaceDetailUiState()
+    data class Success(val place: Place, val jobs: List<Job>, val owner: User?) : PlaceDetailUiState()
     object Error : PlaceDetailUiState()
 }
 
@@ -50,7 +50,9 @@ class PlaceDetailViewModel(
                 val place = placeRepository.getPlaceById(placeId)
                 if (place != null) {
                     val jobs = jobRepository.getJobsByPlace(placeId)
-                    _uiState.value = PlaceDetailUiState.Success(place, jobs)
+                    val owner = userRepository.getUserById(place.ownerId)
+
+                    _uiState.value = PlaceDetailUiState.Success(place, jobs, owner)
                 } else {
                     _uiState.value = PlaceDetailUiState.Error
                 }

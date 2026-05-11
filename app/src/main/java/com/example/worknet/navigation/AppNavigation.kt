@@ -24,6 +24,8 @@ import com.example.worknet.ui.profile.AddPlaceScreen
 import com.example.worknet.ui.profile.AddPlaceViewModel
 import com.example.worknet.ui.profile.ProfileScreen
 import com.example.worknet.ui.profile.ProfileViewModel
+import com.example.worknet.ui.profile.UserScreen
+import com.example.worknet.ui.profile.UserViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -93,6 +95,12 @@ fun AppNavigation() {
             composable<NavigationRoute.AddPlace> {
                 val addPlaceViewModel: AddPlaceViewModel = koinViewModel()
                 AddPlaceScreen(navController, addPlaceViewModel)
+            }
+
+            composable<NavigationRoute.User> { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationRoute.User>()
+                val userViewModel: UserViewModel = koinViewModel { parametersOf(args.userId) }
+                UserScreen(navController, userViewModel, Modifier.padding(innerPadding))
             }
         }
     }
