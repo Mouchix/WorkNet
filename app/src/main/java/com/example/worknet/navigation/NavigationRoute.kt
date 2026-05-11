@@ -12,4 +12,5 @@ sealed interface NavigationRoute {
     @Serializable data class User(val userId: String) : NavigationRoute
     @Serializable data object MyPlaces : NavigationRoute
     @Serializable data class EditProfile(val userId: String) : NavigationRoute
+    @Serializable data class ViewCv(val userId: String) : NavigationRoute
 }

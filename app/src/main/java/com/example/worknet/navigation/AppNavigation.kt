@@ -28,8 +28,10 @@ import com.example.worknet.ui.profile.myPlaces.MyPlacesScreen
 import com.example.worknet.ui.profile.myPlaces.MyPlacesViewModel
 import com.example.worknet.ui.profile.UserScreen
 import com.example.worknet.ui.profile.UserViewModel
+import com.example.worknet.ui.profile.viewCv.CvViewScreen
 import com.example.worknet.ui.profile.editProfile.EditProfileScreen
 import com.example.worknet.ui.profile.editProfile.EditProfileViewModel
+import com.example.worknet.ui.profile.viewCv.CvViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -120,6 +122,20 @@ fun AppNavigation() {
                 val editProfileViewModel: EditProfileViewModel = koinViewModel { parametersOf(args.userId) }
                 EditProfileScreen(navController, editProfileViewModel, Modifier.padding(innerPadding))
             }
+
+            composable<NavigationRoute.ViewCv> { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationRoute.ViewCv>()
+
+                // Possiamo usare un ViewModel piccolissimo o recuperare i dati qui
+                // Supponendo di avere un CvViewModel che riceve lo userId
+                val cvViewModel: CvViewModel = koinViewModel { parametersOf(args.userId) }
+                val user = cvViewModel.user // Caricato nel ViewModel
+
+                if (user?.cvUrl != null) {
+                    CvViewScreen(navController, user.cvUrl!!, user.name)
+                } else {
+                    // Schermata di errore o caricamento
+                } }
         }
     }
 }

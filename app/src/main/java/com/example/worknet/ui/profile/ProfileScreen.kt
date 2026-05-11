@@ -1,5 +1,7 @@
 package com.example.worknet.ui.profile
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -19,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -37,6 +40,7 @@ fun ProfileScreen(
     modifier: Modifier = Modifier
 ) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
 
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
@@ -156,7 +160,16 @@ fun ProfileScreen(
                         }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-                        ProfileMenuItem(icon = Icons.Default.AttachFile, label = "Il mio CV") { }
+                        ProfileMenuItem(icon = Icons.Default.AttachFile, label = "Il mio CV") {
+                            viewModel.onViewCvClick { url ->
+                                try {
+                                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                    context.startActivity(intent)
+                                } catch (e: Exception) {
+                                    // Gestione errore se non c'è un'app per aprire l'URL
+                                }
+                            }
+                        }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
                         ProfileMenuItem(icon = Icons.AutoMirrored.Filled.ExitToApp, label = "Logout", isError = true) {

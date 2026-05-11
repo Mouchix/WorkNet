@@ -47,4 +47,14 @@ class ProfileViewModel(
         userRepository.logout()
         onComplete() // Callback per resettare la navigazione o lo stato UI
     }
+
+    fun onViewCvClick(onOpenUri: (String) -> Unit) {
+        val currentState = _uiState.value
+        if (currentState is ProfileUiState.Success) {
+            val url = currentState.user.cvUrl
+            if (!url.isNullOrEmpty()) {
+                onOpenUri(url)
+            }
+        }
+    }
 }

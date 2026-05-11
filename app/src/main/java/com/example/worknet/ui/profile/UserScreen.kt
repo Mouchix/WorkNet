@@ -1,5 +1,7 @@
 package com.example.worknet.ui.profile
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -33,6 +35,7 @@ import com.example.worknet.ui.components.PlaceCard
 import kotlin.collections.component1
 import kotlin.collections.component2
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.repeatOnLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +46,7 @@ fun UserScreen(
     modifier: Modifier
 ) {
     val user = viewModel.user
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -54,8 +58,7 @@ fun UserScreen(
                     }
                 }
             )
-        },
-        modifier = modifier
+        }
     ) { padding ->
         if (user == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -110,7 +113,12 @@ fun UserScreen(
                 // --- CURRICULUM BUTTON ---
                 item {
                     Button(
-                        onClick = { /* Navigazione futura alla schermata CV */ },
+                        onClick = {
+                            viewModel.onViewCvClick { url ->
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                context.startActivity(intent)
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         enabled = !user.cvUrl.isNullOrEmpty()

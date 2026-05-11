@@ -56,4 +56,12 @@ class UserViewModel(
             }
         }
     }
+
+    fun onViewCvClick(onOpenUri: (String) -> Unit) {
+        user?.cvUrl?.let { url ->
+            if (url.isNotEmpty()) {
+                onOpenUri(url)
+            }
+        }
+    }
 }
