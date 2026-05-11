@@ -1,5 +1,6 @@
 package com.example.worknet.ui.profile
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,15 +11,22 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.worknet.navigation.NavigationRoute
 import com.example.worknet.ui.components.SectionTitle
 
@@ -28,6 +36,14 @@ fun ProfileScreen(
     viewModel: ProfileViewModel,
     modifier: Modifier = Modifier
 ) {
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.loadUserData()
+        }
+    }
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollState = rememberScrollState()
 
@@ -69,11 +85,16 @@ fun ProfileScreen(
                     modifier = Modifier.size(100.dp).clip(CircleShape),
                     color = MaterialTheme.colorScheme.primaryContainer
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.padding(20.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
+                    AsyncImage(
+                        model = user.photoUrl,
+                        contentDescription = "Foto Profilo",
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                        contentScale = ContentScale.Crop,
+                        error = rememberVectorPainter(Icons.Default.AccountCircle),
+                        placeholder = rememberVectorPainter(Icons.Default.AccountCircle)
                     )
                 }
 
@@ -104,6 +125,9 @@ fun ProfileScreen(
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
                         InfoRow(icon = Icons.Default.Place, label = "Residenza", value = user.residence ?: "Non specificata")
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+
+                        InfoRow(icon = Icons.Default.Description, label = "Descrizione", value = user.description ?: "Non specificata")
                     }
                 }
 
@@ -118,7 +142,7 @@ fun ProfileScreen(
                     Column {
                         // Modifica Account aggiunta
                         ProfileMenuItem(icon = Icons.Default.Edit, label = "Modifica Account") {
-                            // navController.navigate(NavigationRoute.EditProfile)
+                            navController.navigate(NavigationRoute.EditProfile(userId = user.id))
                         }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
@@ -132,7 +156,7 @@ fun ProfileScreen(
                         }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-                        ProfileMenuItem(icon = Icons.Default.Description, label = "Il mio CV") { }
+                        ProfileMenuItem(icon = Icons.Default.AttachFile, label = "Il mio CV") { }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
                         ProfileMenuItem(icon = Icons.AutoMirrored.Filled.ExitToApp, label = "Logout", isError = true) {

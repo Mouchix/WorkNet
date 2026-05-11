@@ -28,6 +28,8 @@ import com.example.worknet.ui.profile.myPlaces.MyPlacesScreen
 import com.example.worknet.ui.profile.myPlaces.MyPlacesViewModel
 import com.example.worknet.ui.profile.UserScreen
 import com.example.worknet.ui.profile.UserViewModel
+import com.example.worknet.ui.profile.editProfile.EditProfileScreen
+import com.example.worknet.ui.profile.editProfile.EditProfileViewModel
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -43,7 +45,9 @@ fun AppNavigation() {
         currentRoute.contains("Home") -> true
         currentRoute.contains("Favourites") -> true
         currentRoute.contains("Notifications") -> true
+        currentRoute.contains("EditProfile") -> false
         currentRoute.contains("Profile") -> true
+
         else -> false
     }
 
@@ -111,6 +115,11 @@ fun AppNavigation() {
                 MyPlacesScreen(navController, vm)
             }
 
+            composable<NavigationRoute.EditProfile> { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationRoute.EditProfile>()
+                val editProfileViewModel: EditProfileViewModel = koinViewModel { parametersOf(args.userId) }
+                EditProfileScreen(navController, editProfileViewModel, Modifier.padding(innerPadding))
+            }
         }
     }
 }
