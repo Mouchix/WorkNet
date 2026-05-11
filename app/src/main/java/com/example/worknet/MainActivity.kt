@@ -11,21 +11,10 @@ import com.google.firebase.auth.FirebaseAuth
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        FirebaseAuth.getInstance().signInAnonymously()
-            .addOnSuccessListener {
-                setContent {
-                    WorkNetTheme {
-                        AppNavigation()
-                    }
-                }
+        setContent {
+            WorkNetTheme {
+                AppNavigation()
             }
-            .addOnFailureListener {
-                setContent {
-                    WorkNetTheme {
-                        androidx.compose.material3.Text("Errore login anonimo")
-                    }
-                }
-            }
+        }
     }
 }

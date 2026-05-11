@@ -41,6 +41,41 @@ class UserRepository(
         usersCollection.document(user.id).set(user).await()
     }
 
+    suspend fun signUp(email: String, password: String, userData: User): Result<Unit> {
+        return try {
+            // 1. Crea l'utente su Firebase Auth (gestione sicura password)
+            val authResult = auth.createUserWithEmailAndPassword(email, password).await()
+            val userId = authResult.user?.uid ?: throw Exception("ID utente non trovato")
+
+            // 2. Salva i dati aggiuntivi su Firestore usando l'ID appena creato
+            val userWithId = userData.copy(id = userId)
+            usersCollection.document(userId).set(userWithId).await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun signIn(email: String, password: String): Result<Unit> {
+        return try {
+            auth.signInWithEmailAndPassword(email, password).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun signInWithGoogle(idToken: String): Result<Unit> {
+        return try {
+            val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
+            auth.signInWithCredential(credential).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // ---------------------------------------------------------
     // LETTURA UTENTE
     // ---------------------------------------------------------

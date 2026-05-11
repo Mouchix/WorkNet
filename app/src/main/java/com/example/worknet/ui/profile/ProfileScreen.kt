@@ -174,9 +174,9 @@ fun ProfileScreen(
 
                         ProfileMenuItem(icon = Icons.AutoMirrored.Filled.ExitToApp, label = "Logout", isError = true) {
                             viewModel.logout {
-                                // Torna alla home o al login dopo il logout
-                                navController.navigate(NavigationRoute.Home) {
-                                    popUpTo(0)
+                                // Torna alla pagina di benvenuto dopo il logout
+                                navController.navigate(NavigationRoute.Welcome) {
+                                    popUpTo(0) { inclusive = true }
                                 }
                             }
                         }

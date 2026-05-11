@@ -153,15 +153,6 @@ fun EditProfileScreen(
                     singleLine = true
                 )
 
-                OutlinedTextField(
-                    value = viewModel.email,
-                    onValueChange = { viewModel.email = it },
-                    label = { Text("Email") },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = null) },
-                    singleLine = true
-                )
-
                 // Campo Data di Nascita (Read Only con Picker)
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
