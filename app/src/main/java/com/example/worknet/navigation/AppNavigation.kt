@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
+import com.example.worknet.data.repository.UserRepository
 import com.example.worknet.ui.components.bottomBar.BottomBar
 import com.example.worknet.ui.components.bottomBar.BottomBarViewModel
 import com.example.worknet.ui.home.HomeScreen
@@ -28,16 +29,29 @@ import com.example.worknet.ui.profile.myPlaces.MyPlacesScreen
 import com.example.worknet.ui.profile.myPlaces.MyPlacesViewModel
 import com.example.worknet.ui.profile.UserScreen
 import com.example.worknet.ui.profile.UserViewModel
-import com.example.worknet.ui.profile.viewCv.CvViewScreen
 import com.example.worknet.ui.profile.editProfile.EditProfileScreen
 import com.example.worknet.ui.profile.editProfile.EditProfileViewModel
-import com.example.worknet.ui.profile.viewCv.CvViewModel
+import com.example.worknet.ui.welcome.WelcomeScreen
+import com.example.worknet.ui.welcome.WelcomeViewModel
+import com.example.worknet.ui.welcome.logIn.LoginScreen
+import com.example.worknet.ui.welcome.logIn.LoginViewModel
+import com.example.worknet.ui.welcome.signIn.CreateProfileScreen
+import com.example.worknet.ui.welcome.signIn.CreateProfileViewModel
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val userRepository: UserRepository = koinInject()
+
+    val currentUser = userRepository.getCurrentUserId()
+    val startDestination = if (currentUser != null) {
+        NavigationRoute.Home
+    } else {
+        NavigationRoute.Welcome
+    }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -48,6 +62,7 @@ fun AppNavigation() {
         currentRoute.contains("Favourites") -> true
         currentRoute.contains("Notifications") -> true
         currentRoute.contains("EditProfile") -> false
+        currentRoute.contains("CreateProfile") -> false
         currentRoute.contains("Profile") -> true
 
         else -> false
@@ -63,7 +78,7 @@ fun AppNavigation() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = NavigationRoute.Home,
+            startDestination = startDestination,
             modifier = Modifier
         ) {
             composable<NavigationRoute.Home> {
@@ -123,19 +138,20 @@ fun AppNavigation() {
                 EditProfileScreen(navController, editProfileViewModel, Modifier.padding(innerPadding))
             }
 
-            composable<NavigationRoute.ViewCv> { backStackEntry ->
-                val args = backStackEntry.toRoute<NavigationRoute.ViewCv>()
+            composable<NavigationRoute.Welcome> {
+                val welcomeViewModel: WelcomeViewModel = koinViewModel()
+                WelcomeScreen(navController, welcomeViewModel)
+            }
 
-                // Possiamo usare un ViewModel piccolissimo o recuperare i dati qui
-                // Supponendo di avere un CvViewModel che riceve lo userId
-                val cvViewModel: CvViewModel = koinViewModel { parametersOf(args.userId) }
-                val user = cvViewModel.user // Caricato nel ViewModel
+            composable<NavigationRoute.CreateProfile> {
+                val createProfileViewModel: CreateProfileViewModel = koinViewModel()
+                CreateProfileScreen(navController, createProfileViewModel)
+            }
 
-                if (user?.cvUrl != null) {
-                    CvViewScreen(navController, user.cvUrl!!, user.name)
-                } else {
-                    // Schermata di errore o caricamento
-                } }
+            composable<NavigationRoute.Login> {
+                val loginViewModel: LoginViewModel = koinViewModel()
+                LoginScreen(navController, loginViewModel)
+            }
         }
     }
 }

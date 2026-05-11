@@ -15,7 +15,9 @@ import com.example.worknet.ui.profile.ProfileViewModel
 import com.example.worknet.ui.profile.myPlaces.MyPlacesViewModel
 import com.example.worknet.ui.profile.UserViewModel
 import com.example.worknet.ui.profile.editProfile.EditProfileViewModel
-import com.example.worknet.ui.profile.viewCv.CvViewModel
+import com.example.worknet.ui.welcome.WelcomeViewModel
+import com.example.worknet.ui.welcome.logIn.LoginViewModel
+import com.example.worknet.ui.welcome.signIn.CreateProfileViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -51,5 +53,9 @@ val appModule = module {
 
     viewModel { params -> EditProfileViewModel(params.get(),get()) }
 
-    viewModel { params -> CvViewModel(params.get(), get()) }
+    viewModel { WelcomeViewModel() }
+
+    viewModel { CreateProfileViewModel(get()) }
+
+    viewModel { LoginViewModel(get()) }
 }

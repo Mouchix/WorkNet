@@ -1,9 +1,7 @@
-package com.example.worknet.ui.profile.createProfile
+package com.example.worknet.ui.welcome.signIn
 
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -18,7 +16,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -29,15 +26,16 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.worknet.navigation.NavigationRoute
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CreateAccountScreen(
+fun CreateProfileScreen(
     navController: NavHostController,
-    viewModel: CreateAccountViewModel,
+    viewModel: CreateProfileViewModel,
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
@@ -82,15 +80,15 @@ fun CreateAccountScreen(
             )
         },
         bottomBar = {
-            // Bottone fisso in basso per l'azione principale (Material 3 style)
+            // Bottone fisso in basso per l'azione principale
             Surface(tonalElevation = 3.dp) {
                 Button(
-                    onClick = { viewModel.createAccount { navController.navigate("home") } },
+                    onClick = { viewModel.createAccount { navController.navigate(NavigationRoute.Home) } },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp)
-                        .height(56.dp),
-                    shape = RoundedCornerShape(16.dp),
+                        .height(46.dp),
+                    shape = RoundedCornerShape(24.dp),
                     enabled = viewModel.canCreate && !viewModel.isCreating
                 ) {
                     if (viewModel.isCreating) {
@@ -163,15 +161,40 @@ fun CreateAccountScreen(
                 onValueChange = { viewModel.email = it },
                 label = { Text("Email *") },
                 modifier = Modifier.fillMaxWidth(),
-                leadingIcon = { Icon(Icons.Default.Email, null) },
-                shape = RoundedCornerShape(12.dp)
+                leadingIcon = {
+                    Icon(
+                        Icons.Default.Email,
+                        contentDescription = null,
+                        // Anche l'icona può cambiare colore se vuoi un effetto extra
+                        tint = if (!viewModel.isEmailValid && viewModel.email.isNotEmpty())
+                            MaterialTheme.colorScheme.error
+                        else
+                            LocalContentColor.current
+                    )
+                },
+                // PROPRIETÀ CHIAVE PER L'ERRORE
+                isError = !viewModel.isEmailValid && viewModel.email.isNotEmpty(),
+                supportingText = {
+                    if (!viewModel.isEmailValid && viewModel.email.isNotEmpty()) {
+                        Text(
+                            text = "Formato email non valido",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
             )
 
             // Password
             OutlinedTextField(
                 value = viewModel.password,
                 onValueChange = { viewModel.password = it },
-                label = { Text("Password *") },
+                label = { Text("Password * (min 6 caratteri)") },
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = null) },
                 // Gestione visibilità per sicurezza
