@@ -66,6 +66,16 @@ class UserRepository(
         }
     }
 
+    suspend fun signInWithGoogle(idToken: String): Result<Unit> {
+        return try {
+            val credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null)
+            auth.signInWithCredential(credential).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // ---------------------------------------------------------
     // LETTURA UTENTE
     // ---------------------------------------------------------

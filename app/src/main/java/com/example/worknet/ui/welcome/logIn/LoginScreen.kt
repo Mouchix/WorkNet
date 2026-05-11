@@ -8,9 +8,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -19,7 +21,10 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.worknet.navigation.NavigationRoute
-import org.koin.androidx.compose.koinViewModel
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -27,6 +32,9 @@ fun LoginScreen(
     navController: NavHostController,
     viewModel: LoginViewModel
 ) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val credentialManager = CredentialManager.create(context)
     Scaffold(
         topBar = {
             TopAppBar(
@@ -163,10 +171,38 @@ fun LoginScreen(
 
             // --- BOTTONE GOOGLE ---
             OutlinedButton(
-                onClick = { viewModel.loginWithGoogle { /* Logica Navigazione */ } },
+                onClick = {
+                    scope.launch {
+                        try {
+                            // 1. Configura la richiesta Google
+                            val googleIdOption = GetGoogleIdOption.Builder()
+                                .setFilterByAuthorizedAccounts(false)
+                                .setServerClientId("83193789853-pno8uudc08g35en6ibvdnoj3g9c5uckl.apps.googleusercontent.com") // <--- IMPORTANTE
+                                .build()
+
+                            val request = GetCredentialRequest.Builder()
+                                .addCredentialOption(googleIdOption)
+                                .build()
+
+                            // 2. Lancia il selettore
+                            val result = credentialManager.getCredential(context, request)
+
+                            // 3. Estrai il token e passalo al ViewModel
+                            val googleIdToken = com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+                                .createFrom(result.credential.data).idToken
+
+                            viewModel.onGoogleSignInResult(googleIdToken) {
+                                navController.navigate(NavigationRoute.Home) {
+                                    popUpTo(NavigationRoute.Welcome) { inclusive = true }
+                                }
+                            }
+                        } catch (e: Exception) {
+                            viewModel.errorMessage = "Accesso Google annullato o fallito " + e.message
+                        }
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Icon(
                     imageVector = Icons.Default.AccountCircle, // Puoi sostituire con logo Google reale

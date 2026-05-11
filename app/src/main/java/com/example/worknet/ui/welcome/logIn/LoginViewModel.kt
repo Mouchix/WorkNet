@@ -51,4 +51,18 @@ class LoginViewModel(
     fun loginWithGoogle(onSuccess: () -> Unit) {
         // Logica per Firebase Google Auth
     }
+
+    fun onGoogleSignInResult(idToken: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            val result = userRepository.signInWithGoogle(idToken)
+            if (result.isSuccess) {
+                onSuccess()
+            } else {
+                errorMessage = "Errore durante l'accesso con Google"
+            }
+            isLoading = false
+        }
+    }
 }
