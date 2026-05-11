@@ -1,11 +1,13 @@
 package com.example.worknet.ui.home
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -18,7 +20,8 @@ import androidx.lifecycle.Lifecycle
 fun HomeScreen(
     navController: NavHostController,
     viewModel: HomeViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val query by viewModel.searchQuery.collectAsState()
@@ -30,39 +33,77 @@ fun HomeScreen(
         }
     }
 
-    Column(modifier = modifier.fillMaxSize().padding(16.dp)) {
-        // Search Bar
-        OutlinedTextField(
-            value = query,
-            onValueChange = { viewModel.onQueryChange(it) }, // Delega al ViewModel
-            label = { Text("Cerca lavoro o attività") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        when (val state = uiState) {
-            is HomeUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+    Scaffold(
+        topBar = {
+            Surface(
+                modifier = modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 3.dp // Crea l'effetto separazione tipico della TopAppBar
+            ) {
+                Box(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .height(70.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "WorkNet",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
-            is HomeUiState.Success -> {
-                LazyColumn(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        }
+    ){ scaffoldPadding ->
+        LazyColumn(
+            modifier = modifier.fillMaxSize().padding(scaffoldPadding),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(16.dp)
+        ) {
+            item {
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { viewModel.onQueryChange(it) }, // Delega al ViewModel
+                    label = { Text("Cerca lavoro o attività") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
+                )
+            }
+
+            when (val state = uiState) {
+                is HomeUiState.Success -> {
                     state.placesWithJobs.forEach { (place, jobs) ->
                         item {
                             PlaceCard(
                                 place = place,
                                 jobs = jobs,
-                                onClick = { navController.navigate(NavigationRoute.PlaceDetail(placeId = place.id)) }
+                                onClick = {
+                                    navController.navigate(
+                                        NavigationRoute.PlaceDetail(
+                                            placeId = place.id
+                                        )
+                                    )
+                                }
                             )
                         }
                     }
                 }
-            }
-            is HomeUiState.Error -> {
-                Text("Errore: ${state.message}")
+
+                is HomeUiState.Loading -> {
+                    item {
+                        Box(modifier = modifier.fillMaxSize().padding(top = 32.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
+                        }
+                    }
+                }
+
+                is HomeUiState.Error -> {
+                    item {
+                        Text("Errore: ${state.message}")
+                    }
+                }
             }
         }
     }

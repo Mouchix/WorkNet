@@ -148,7 +148,7 @@ fun PlaceDetailScreen(
 
                 // Proprietario
                 item {
-                    if (owner != null) {
+                    if (owner != null && !isOwner) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()

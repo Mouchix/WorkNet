@@ -19,26 +19,27 @@ import com.example.worknet.ui.components.PlaceCard // Assicurati che sia pubblic
 fun FavouritesScreen(
     navController: NavHostController,
     viewModel: FavouritesViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    innerPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
-        modifier = modifier,
         topBar = {
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 3.dp // Crea l'effetto separazione tipico della TopAppBar
             ) {
                 Box(
-                    modifier = Modifier
+                    modifier = modifier
                         .fillMaxWidth()
-                        .height(64.dp),
+                        .statusBarsPadding()
+                        .height(70.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "I miei Preferiti",
+                        text = "Preferiti",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -46,25 +47,30 @@ fun FavouritesScreen(
                 }
             }
         }
-    ) { padding ->
+    ) { scaffoldPadding ->
         when (val state = uiState) {
             is FavouritesUiState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
             }
             is FavouritesUiState.Error -> {
-                Text(state.message, modifier = Modifier.padding(padding))
+                Text(state.message, modifier = modifier.padding(scaffoldPadding))
             }
             is FavouritesUiState.Success -> {
                 if (state.favouritePlaces.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         Text("Non hai ancora salvato nessun posto.")
                     }
                 } else {
                     LazyColumn(
-                        modifier = Modifier.padding(padding).fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
+                        modifier = modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(
+                            start = 16.dp,
+                            top = scaffoldPadding.calculateTopPadding() + 16.dp,
+                            end = 16.dp,
+                            bottom = innerPadding.calculateBottomPadding() + 16.dp
+                        ),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(state.favouritePlaces) { item -> // 'item' è di tipo PlaceWithJobs

@@ -1,7 +1,6 @@
-package com.example.worknet.ui.profile
+package com.example.worknet.ui.user
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -11,11 +10,8 @@ import com.example.worknet.data.model.Place
 import com.example.worknet.data.repository.PlaceRepository
 import com.example.worknet.data.repository.UserRepository
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.collect
 import com.example.worknet.data.model.User
 import com.example.worknet.data.repository.JobRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 
 sealed class UserUiState {
     object Loading : UserUiState()

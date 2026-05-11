@@ -26,8 +26,8 @@ import com.example.worknet.ui.profile.ProfileScreen
 import com.example.worknet.ui.profile.ProfileViewModel
 import com.example.worknet.ui.profile.myPlaces.MyPlacesScreen
 import com.example.worknet.ui.profile.myPlaces.MyPlacesViewModel
-import com.example.worknet.ui.profile.UserScreen
-import com.example.worknet.ui.profile.UserViewModel
+import com.example.worknet.ui.user.UserScreen
+import com.example.worknet.ui.user.UserViewModel
 import com.example.worknet.ui.profile.viewCv.CvViewScreen
 import com.example.worknet.ui.profile.editProfile.EditProfileScreen
 import com.example.worknet.ui.profile.editProfile.EditProfileViewModel
@@ -68,12 +68,20 @@ fun AppNavigation() {
         ) {
             composable<NavigationRoute.Home> {
                 val homeViewModel: HomeViewModel = koinViewModel()
-                HomeScreen(navController, homeViewModel, Modifier.padding(innerPadding))
+                HomeScreen(
+                    navController,
+                    homeViewModel,
+                    innerPadding = innerPadding
+                )
             }
 
             composable<NavigationRoute.Favourites> {
                 val favViewModel: FavouritesViewModel = koinViewModel()
-                FavouritesScreen(navController, favViewModel, Modifier.padding(innerPadding))
+                FavouritesScreen(
+                    navController,
+                    favViewModel,
+                    innerPadding = innerPadding
+                )
             }
 
             composable<NavigationRoute.Notifications> {
