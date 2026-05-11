@@ -14,6 +14,8 @@ import com.example.worknet.ui.profile.addplace.AddPlaceViewModel
 import com.example.worknet.ui.profile.ProfileViewModel
 import com.example.worknet.ui.profile.myPlaces.MyPlacesViewModel
 import com.example.worknet.ui.profile.UserViewModel
+import com.example.worknet.ui.profile.editProfile.EditProfileViewModel
+import com.example.worknet.ui.profile.viewCv.CvViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -46,4 +48,8 @@ val appModule = module {
     viewModel { BottomBarViewModel(get(), get()) }
 
     viewModel { MyPlacesViewModel(get(), get(), get()) }
+
+    viewModel { params -> EditProfileViewModel(params.get(),get()) }
+
+    viewModel { params -> CvViewModel(params.get(), get()) }
 }

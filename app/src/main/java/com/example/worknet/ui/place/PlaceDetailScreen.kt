@@ -62,6 +62,7 @@ fun PlaceDetailScreen(
             LazyColumn(
                 modifier = modifier.fillMaxSize()
             ) {
+                // Foto, back button
                 item {
                     Box(
                         modifier = Modifier

@@ -1,5 +1,7 @@
 package com.example.worknet.ui.profile
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -11,7 +13,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,6 +24,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.worknet.data.model.User
@@ -27,6 +34,9 @@ import com.example.worknet.navigation.NavigationRoute
 import com.example.worknet.ui.components.PlaceCard
 import kotlin.collections.component1
 import kotlin.collections.component2
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.repeatOnLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +46,7 @@ fun UserScreen(
     modifier: Modifier
 ) {
     val user = viewModel.user
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -47,8 +58,7 @@ fun UserScreen(
                     }
                 }
             )
-        },
-        modifier = modifier
+        }
     ) { padding ->
         if (user == null) {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -103,7 +113,12 @@ fun UserScreen(
                 // --- CURRICULUM BUTTON ---
                 item {
                     Button(
-                        onClick = { /* Navigazione futura alla schermata CV */ },
+                        onClick = {
+                            viewModel.onViewCvClick { url ->
+                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                context.startActivity(intent)
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         enabled = !user.cvUrl.isNullOrEmpty()
