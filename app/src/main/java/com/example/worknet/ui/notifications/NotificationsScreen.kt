@@ -44,7 +44,7 @@ fun NotificationsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .height(64.dp),
+                        .height(70.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(

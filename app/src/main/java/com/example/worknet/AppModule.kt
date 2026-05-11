@@ -13,7 +13,7 @@ import com.example.worknet.ui.place.PlaceDetailViewModel
 import com.example.worknet.ui.profile.addplace.AddPlaceViewModel
 import com.example.worknet.ui.profile.ProfileViewModel
 import com.example.worknet.ui.profile.myPlaces.MyPlacesViewModel
-import com.example.worknet.ui.profile.UserViewModel
+import com.example.worknet.ui.user.UserViewModel
 import com.example.worknet.ui.profile.editProfile.EditProfileViewModel
 import com.example.worknet.ui.welcome.WelcomeViewModel
 import com.example.worknet.ui.welcome.logIn.LoginViewModel
