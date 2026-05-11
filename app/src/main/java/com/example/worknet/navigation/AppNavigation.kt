@@ -6,12 +6,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.toRoute
-import com.example.worknet.ui.components.BottomBar
+import com.example.worknet.ui.components.bottomBar.BottomBar
+import com.example.worknet.ui.components.bottomBar.BottomBarViewModel
 import com.example.worknet.ui.home.HomeScreen
 import com.example.worknet.ui.favourites.FavouritesScreen
 import com.example.worknet.ui.favourites.FavouritesViewModel
@@ -20,10 +20,12 @@ import com.example.worknet.ui.notifications.NotificationsScreen
 import com.example.worknet.ui.notifications.NotificationsViewModel
 import com.example.worknet.ui.place.PlaceDetailScreen
 import com.example.worknet.ui.place.PlaceDetailViewModel
-import com.example.worknet.ui.profile.AddPlaceScreen
-import com.example.worknet.ui.profile.AddPlaceViewModel
+import com.example.worknet.ui.profile.addplace.AddPlaceScreen
+import com.example.worknet.ui.profile.addplace.AddPlaceViewModel
 import com.example.worknet.ui.profile.ProfileScreen
 import com.example.worknet.ui.profile.ProfileViewModel
+import com.example.worknet.ui.profile.myPlaces.MyPlacesScreen
+import com.example.worknet.ui.profile.myPlaces.MyPlacesViewModel
 import com.example.worknet.ui.profile.UserScreen
 import com.example.worknet.ui.profile.UserViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -48,7 +50,8 @@ fun AppNavigation() {
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
-                BottomBar(navController)
+                val bottomBarViewModel: BottomBarViewModel = koinViewModel()
+                BottomBar(navController, bottomBarViewModel)
             }
         }
     ) { innerPadding ->
@@ -102,6 +105,12 @@ fun AppNavigation() {
                 val userViewModel: UserViewModel = koinViewModel { parametersOf(args.userId) }
                 UserScreen(navController, userViewModel, Modifier.padding(innerPadding))
             }
+
+            composable<NavigationRoute.MyPlaces> {
+                val vm: MyPlacesViewModel = koinViewModel()
+                MyPlacesScreen(navController, vm)
+            }
+
         }
     }
 }

@@ -1,8 +1,7 @@
-package com.example.worknet.ui.components
+package com.example.worknet.ui.components.bottomBar
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Favorite
@@ -10,9 +9,12 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.navigation.NavController
 import com.example.worknet.navigation.NavigationRoute
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 @Composable
-fun BottomBar(navController: NavController) {
+fun BottomBar(navController: NavController, bottomBarViewModel: BottomBarViewModel) {
+    val hasUnread by bottomBarViewModel.hasUnread.collectAsState()
 
     NavigationBar {
         NavigationBarItem(
@@ -32,7 +34,17 @@ fun BottomBar(navController: NavController) {
         NavigationBarItem(
             selected = false,
             onClick = { navController.navigate(NavigationRoute.Notifications) },
-            icon = { Icon(Icons.Default.Notifications, contentDescription = "Notifications") },
+            icon = {
+                BadgedBox(
+                    badge = {
+                        if (hasUnread) {
+                            Badge()
+                        }
+                    }
+                ) {
+                    Icon(Icons.Default.Notifications, contentDescription = "Notifications")
+                }
+            },
             label = { Text("Notifiche") }
         )
 

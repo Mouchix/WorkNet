@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.worknet.navigation.NavigationRoute
+import com.example.worknet.ui.components.SectionTitle
 
 @Composable
 fun ProfileScreen(
@@ -121,7 +122,9 @@ fun ProfileScreen(
                         }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
-                        ProfileMenuItem(icon = Icons.Default.Business, label = "I tuoi ambienti di lavoro") { }
+                        ProfileMenuItem(icon = Icons.Default.Business, label = "I tuoi ambienti di lavoro") {
+                            navController.navigate(NavigationRoute.MyPlaces)
+                        }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
                         ProfileMenuItem(icon = Icons.Default.AddCircleOutline, label = "Crea un ambiente di lavoro") {
@@ -145,16 +148,6 @@ fun ProfileScreen(
             }
         }
     }
-}
-
-@Composable
-fun SectionTitle(title: String) {
-    Text(
-        text = title,
-        style = MaterialTheme.typography.labelLarge,
-        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-        color = MaterialTheme.colorScheme.primary
-    )
 }
 
 @Composable

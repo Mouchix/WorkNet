@@ -15,13 +15,9 @@ import com.example.worknet.ui.place.PlaceDetailViewModel
 @Composable
 fun OwnerJobCard(job: Job, viewModel: PlaceDetailViewModel, onComplete: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val applications = remember { mutableStateListOf<Application>() }
 
-    // Carica candidature (puoi collegarlo al repository)
-    LaunchedEffect(job.id) {
-        applications.clear()
-        applications.addAll(viewModel.applicationRepository.getApplicationsByJob(job.placeId,job.id))
-    }
+    val applications by viewModel.getApplicationsForJob(job.id)
+        .collectAsState(initial = emptyList())
 
     ElevatedCard(
         modifier = Modifier
@@ -43,11 +39,13 @@ fun OwnerJobCard(job: Job, viewModel: PlaceDetailViewModel, onComplete: () -> Un
 
             if (expanded) {
                 Spacer(modifier = Modifier.height(8.dp))
-                applications.filter { it.status == "pending" }
+                applications
+                    .filter { it.status == "pending" }
                     .forEach { application ->
-                    CandidateRow(application, viewModel, onComplete)
-                }
+                        CandidateRow(application, viewModel, onComplete)
+                    }
             }
         }
     }
 }
+

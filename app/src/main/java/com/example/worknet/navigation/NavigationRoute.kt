@@ -10,4 +10,5 @@ sealed interface NavigationRoute {
     @Serializable data class PlaceDetail(val placeId: String) : NavigationRoute
     @Serializable data object AddPlace : NavigationRoute
     @Serializable data class User(val userId: String) : NavigationRoute
+    @Serializable data object MyPlaces : NavigationRoute
 }
