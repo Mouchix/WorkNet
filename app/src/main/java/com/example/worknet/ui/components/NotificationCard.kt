@@ -1,24 +1,34 @@
 package com.example.worknet.ui.components
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.worknet.data.model.Notification
 import androidx.compose.material3.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.core.net.toUri
 
 @Composable
 fun NotificationCard(
     notification: Notification,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val isUnread = !notification.read
+    val context = LocalContext.current
 
     Card(
         modifier = Modifier.fillMaxWidth().clickable{ onClick() },
@@ -31,18 +41,35 @@ fun NotificationCard(
         )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (isUnread) {
+                    Box(
+                        modifier = Modifier
+                            .size(10.dp)
+                            .padding(bottom = 6.dp)
+                            .background(
+                                MaterialTheme.colorScheme.primary,
+                                shape = RoundedCornerShape(50)
+                            )
+                    )
+                } else {
+                    Spacer(modifier = Modifier.width(10.dp))
+                }
 
-            if (isUnread) {
-                Box(
-                    modifier = Modifier
-                        .size(10.dp)
-                        .padding(bottom = 6.dp)
-                        .background(
-                            MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(50)
-                        )
-                )
+                IconButton(onClick = { onDelete() }) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Elimina notifica",
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(6.dp))
 
             // Titolo
             Text(
@@ -62,19 +89,62 @@ fun NotificationCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Badge per distinguere i tipi
-            if (notification.type == "response") {
-                Text(
-                    text = "Risposta",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-            } else {
-                Text(
-                    text = "Info",
-                    color = Color.Gray,
-                    style = MaterialTheme.typography.labelMedium
-                )
+            when (notification.type) {
+                "info" -> {
+                    Text(
+                        text = "Info",
+                        color = Color.Gray,
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                }
+
+                "response_accept" -> {
+                    Text(
+                        text = "Accettata",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+
+                    notification.contactEmail?.let { email ->
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.clickable {
+                                val intent = Intent(Intent.ACTION_SENDTO).apply {
+                                    data = "mailto:$email".toUri()
+                                }
+                                context.startActivity(intent)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Email,
+                                contentDescription = "Invia email",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+
+                            Spacer(modifier = Modifier.width(6.dp))
+
+                            Text(
+                                text = email,
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                    }
+                }
+
+                "response_reject" -> {
+                    Text(
+                        text = "Rifiutata",
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
         }
     }

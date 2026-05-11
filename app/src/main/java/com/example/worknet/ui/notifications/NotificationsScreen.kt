@@ -66,15 +66,22 @@ fun NotificationsScreen(
                 top = scaffoldPadding.calculateTopPadding() + 16.dp,
                 end = 16.dp,
                 // Usiamo il padding della BottomBar esterna + margine estetico
-                bottom = innerPadding.calculateBottomPadding() + 16.dp 
+                bottom = innerPadding.calculateBottomPadding() + 16.dp
             ),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ){
             items(notifications) { notification ->
-                NotificationCard(notification) {
-                    viewModel.markAsRead(notification.id)
-                    navController.navigate(NavigationRoute.PlaceDetail(placeId = notification.placeId))
-                }
+                NotificationCard(notification,
+                    onClick = {
+                        viewModel.markAsRead(notification.id)
+                        navController.navigate(
+                            NavigationRoute.PlaceDetail(placeId = notification.placeId)
+                        )
+                    },
+                    onDelete = {
+                        viewModel.deleteNotification(notification.id)
+                    }
+                )
             }
         }
     }

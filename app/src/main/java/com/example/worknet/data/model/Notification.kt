@@ -7,5 +7,6 @@ data class Notification(
     val type: String = "",
     val createdAt: Long = System.currentTimeMillis(),
     val read: Boolean = false,
-    val placeId: String = ""
+    val placeId: String = "",
+    val contactEmail: String? = null
 )

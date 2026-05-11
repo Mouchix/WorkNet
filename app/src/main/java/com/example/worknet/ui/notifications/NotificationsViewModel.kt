@@ -38,4 +38,12 @@ class NotificationsViewModel(
             notificationRepository.markAsRead(userId, notificationId)
         }
     }
+
+    fun deleteNotification(notificationId: String) {
+        viewModelScope.launch {
+            val userId = userRepository.getCurrentUserId() ?: return@launch
+            notificationRepository.deleteNotification(userId, notificationId)
+        }
+    }
+
 }

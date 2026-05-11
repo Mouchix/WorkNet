@@ -80,6 +80,8 @@ class PlaceDetailViewModel(
             } else {
                 userRepository.addFavoritePlace(userId, placeId)
                 _isFavourite.value = true
+
+                notifyFavoriteAdded(userId)
             }
         }
     }
@@ -130,28 +132,28 @@ class PlaceDetailViewModel(
         viewModelScope.launch {
             val place = placeRepository.getPlaceById(application.placeId)
             val user = userRepository.getUserById(application.userId)
-            val ownerId = place?.ownerId
+            val ownerId = place?.ownerId ?: return@launch
+            val owner = userRepository.getUserById(ownerId)
 
             applicationRepository.updateApplicationStatus(application.placeId, application.jobId, application.id, "accepted")
 
-            if (ownerId != null) {
-                val ownerNotification = Notification(
-                    id = "notif_${System.currentTimeMillis()}",
-                    title = "Candidatura accetta",
-                    message = "Hai accettato una candidatura per ${place.title} da parte di ${user!!.name}",
-                    type = "info",
-                    placeId = placeId
-                )
+            val ownerNotification = Notification(
+                id = "notif_${System.currentTimeMillis()}",
+                title = "Candidatura accetta",
+                message = "Hai accettato una candidatura per ${place.title} da parte di ${user!!.name}",
+                type = "info",
+                placeId = placeId
+            )
 
-                notificationRepository.createNotification(ownerId, ownerNotification)
-            }
+            notificationRepository.createNotification(ownerId, ownerNotification)
 
             val acceptNotification = Notification(
                 id = "notif_${System.currentTimeMillis()}",
                 title = "Candidatura accettata",
                 message = "La tua candidatura per ${place?.title} è stata accettata, complimenti!",
-                type = "response",
-                placeId = placeId
+                type = "response_accept",
+                placeId = placeId,
+                contactEmail = owner?.email
             )
             notificationRepository.createNotification(application.userId, acceptNotification)
             onComplete()
@@ -182,7 +184,7 @@ class PlaceDetailViewModel(
             id = "notif_${System.currentTimeMillis()}",
             title = "Candidatura rifiutata",
             message = "Ci dispiace, ma la tua candidatura per ${place?.title} è stata rifiutata.",
-            type = "response",
+            type = "response_reject",
             placeId = placeId
         )
             notificationRepository.createNotification(application.userId, rejectNotification)
@@ -196,6 +198,24 @@ class PlaceDetailViewModel(
 
     fun getApplicationsForJob(jobId: String): Flow<List<Application>> {
         return applicationRepository.observeApplications(placeId, jobId)
+    }
+
+    fun notifyFavoriteAdded(userId: String) {
+        viewModelScope.launch {
+            val place = placeRepository.getPlaceById(placeId) ?: return@launch
+            val ownerId = place.ownerId ?: return@launch
+            val user = userRepository.getUserById(userId) ?: return@launch
+
+            val notification = Notification(
+                id = "notif_${System.currentTimeMillis()}",
+                title = "Nuovo preferito",
+                message = "${user.name} ha aggiunto '${place.title}' ai preferiti",
+                type = "info",
+                placeId = placeId
+            )
+
+            notificationRepository.createNotification(ownerId, notification)
+        }
     }
 
 }

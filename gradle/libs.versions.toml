@@ -14,7 +14,9 @@ activityCompose = "1.13.0"
 composeBom = "2024.09.00"
 firebaseCommonKtx = "22.0.1"
 material = "1.13.0"
+material3Version = "1.2.0-alpha07"
 materialIconsExtended = "1.7.8"
+materialVersion = "1.11.1"
 navigationCompose = "2.9.7"
 ui = "1.11.1"
 material3 = "1.4.0"
@@ -23,7 +25,9 @@ foundation = "1.11.1"
 foundationLayout = "1.11.1"
 
 [libraries]
+androidx-compose-material = { module = "androidx.compose.material:material", version.ref = "materialVersion" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+androidx-compose-material3-v120alpha07 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }

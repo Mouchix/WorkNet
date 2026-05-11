@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.example.worknet.data.model.Job
 import com.example.worknet.data.model.Application
 import androidx.compose.runtime.*
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
 import com.example.worknet.navigation.NavigationRoute
 import com.example.worknet.ui.place.PlaceDetailViewModel
@@ -30,12 +31,20 @@ fun OwnerJobCard(navController: NavHostController, job: Job, viewModel: PlaceDet
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(job.title, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    job.title,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 if (applications.isNotEmpty()) {
-                    Button(onClick = { expanded = !expanded }) {
+                    Button(
+                        onClick = { expanded = !expanded },
+                        modifier = Modifier.wrapContentWidth()
+                    ) {
                         Text(if (expanded) "Nascondi candidature" else "Mostra candidature")
                     }
                 }
