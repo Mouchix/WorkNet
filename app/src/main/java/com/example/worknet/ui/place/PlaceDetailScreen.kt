@@ -131,13 +131,14 @@ fun PlaceDetailScreen(
                                 modifier = Modifier.weight(1f)
                             )
 
-                            // BOTTONE LIKE (Material 3 Style)
-                            IconButton(onClick = { viewModel.toggleFavourite() }) {
-                                Icon(
-                                    imageVector = if (isFavourite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                                    contentDescription = "Aggiungi ai preferiti",
-                                    tint = if (isFavourite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
-                                )
+                            if(!isOwner){
+                                IconButton(onClick = { viewModel.toggleFavourite() }) {
+                                    Icon(
+                                        imageVector = if (isFavourite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                        contentDescription = "Aggiungi ai preferiti",
+                                        tint = if (isFavourite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+                                    )
+                                }
                             }
                         }
 

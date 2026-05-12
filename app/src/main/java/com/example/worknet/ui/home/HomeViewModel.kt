@@ -31,14 +31,22 @@ class HomeViewModel(
     // Dati originali dal DB/API
     private val _rawPlacesWithJobs = MutableStateFlow<Map<Place, List<Job>>>(emptyMap())
 
-    // Stato della UI
     val uiState: StateFlow<HomeUiState> = combine(_rawPlacesWithJobs, _searchQuery) { data, query ->
         if (data.isEmpty()) {
             HomeUiState.Loading
         } else {
-            val filtered = data.mapValues { (_, jobs) ->
-                jobs.filter { it.title.contains(query, ignoreCase = true) }
-            }.filterValues { it.isNotEmpty() }
+            val filtered: Map<Place, List<Job>> = data.mapNotNull { (place, jobs) ->
+                if (place.title.contains(query, ignoreCase = true)) {
+                    place to jobs
+                } else {
+                    val filteredJobs = jobs.filter { it.title.contains(query, ignoreCase = true) }
+                    if (filteredJobs.isNotEmpty()) {
+                        place to filteredJobs
+                    } else {
+                        null
+                    }
+                }
+            }.toMap()
 
             HomeUiState.Success(filtered)
         }
