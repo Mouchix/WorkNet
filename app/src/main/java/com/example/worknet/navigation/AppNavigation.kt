@@ -127,8 +127,19 @@ fun AppNavigation() {
 
             composable<NavigationRoute.AddPlace> {
                 val addPlaceViewModel: AddPlaceViewModel = koinViewModel()
-                AddPlaceScreen(navController, addPlaceViewModel)
+                AddPlaceScreen(navController, null,addPlaceViewModel)
             }
+
+            composable<NavigationRoute.EditPlace> { backStackEntry ->
+                val args = backStackEntry.toRoute<NavigationRoute.EditPlace>()
+                val viewModel: AddPlaceViewModel = koinViewModel()
+                AddPlaceScreen(
+                    navController = navController,
+                    placeId = args.placeId,
+                    viewModel = viewModel
+                )
+            }
+
 
             composable<NavigationRoute.User> { backStackEntry ->
                 val args = backStackEntry.toRoute<NavigationRoute.User>()

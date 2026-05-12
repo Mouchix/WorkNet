@@ -9,6 +9,8 @@ sealed interface NavigationRoute {
     @Serializable data object Profile : NavigationRoute
     @Serializable data class PlaceDetail(val placeId: String) : NavigationRoute
     @Serializable data object AddPlace : NavigationRoute
+    @Serializable data class EditPlace(val placeId: String) : NavigationRoute
+
     @Serializable data class User(val userId: String) : NavigationRoute
     @Serializable data object MyPlaces : NavigationRoute
     @Serializable data class EditProfile(val userId: String) : NavigationRoute

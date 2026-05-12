@@ -214,4 +214,77 @@ class AddPlaceViewModel(
             }
         }
     }
+
+    fun loadPlace(placeId: String) {
+        viewModelScope.launch {
+            try {
+                val place = placeRepository.getPlaceById(placeId)
+                if (place != null) {
+
+                    // Popola i campi UI
+                    placeTitle = place.title
+                    placeDescription = place.description
+                    placeAddress = place.address
+                    latitude = place.latitude
+                    longitude = place.longitude
+                    imageUri = place.imageUrl?.let { Uri.parse(it) }
+
+                    // Carica i job associati
+                    val jobs = jobRepository.getJobsByPlace(placeId)
+                    jobsList.clear()
+                    jobsList.addAll(jobs)
+                }
+            } catch (e: Exception) {
+                _toastMessage.emit("Errore nel caricamento: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun updatePlace(placeId: String, onSuccess: () -> Unit) {
+        if (!isFormValid()) return
+
+        viewModelScope.launch {
+            isSaving = true
+            try {
+                val userId = userRepository.getCurrentUserId() ?: return@launch
+
+                // 1. Se l'immagine è cambiata, ricaricala
+                val imageUrl = if (imageUri != null) {
+                    placeRepository.uploadPlaceImage(imageUri!!, placeId)
+                } else null
+
+                // 2. Crea oggetto aggiornato
+                val updatedPlace = Place(
+                    id = placeId,
+                    ownerId = userId,
+                    title = placeTitle,
+                    description = placeDescription,
+                    address = placeAddress,
+                    latitude = latitude,
+                    longitude = longitude,
+                    imageUrl = imageUrl
+                )
+
+                // 3. Aggiorna Place
+                placeRepository.updatePlace(updatedPlace)
+
+                // 4. Aggiorna Jobs
+                jobRepository.deleteJobsByPlace(placeId)   // pulizia vecchi job
+                jobsList.forEach { job ->
+                    val updatedJob = job.copy(placeId = placeId)
+                    jobRepository.createJob(updatedJob)
+                }
+
+                _toastMessage.emit("Modifiche salvate con successo!")
+
+                withContext(Dispatchers.Main) { onSuccess() }
+
+            } catch (e: Exception) {
+                _toastMessage.emit("Errore durante il salvataggio: ${e.localizedMessage}")
+            } finally {
+                isSaving = false
+            }
+        }
+    }
+
 }

@@ -81,19 +81,48 @@ class PlaceRepository(
     // UPLOAD IMMAGINE PLACE (STORAGE)
     // ---------------------------------------------------------
     suspend fun uploadPlaceImage(uri: Uri, placeId: String): String {
-        // Prova a cambiare il path in questo modo più semplice
+        val uriString = uri.toString()
+
+        // --- CONTROLLO CRUCIALE PER LA MODIFICA ---
+        // Se l'uri è già un link web (contiene http o firebase),
+        // non dobbiamo caricarlo di nuovo. Restituiamo l'URL così com'è.
+        if (uriString.contains("firebasestorage.googleapis.com") || uriString.startsWith("http")) {
+            Log.d("REPO_DEBUG", "L'immagine è già su Firebase, salto l'upload.")
+            return uriString
+        }
+
+        // Se arriviamo qui, l'URI è locale (es. content://...), quindi procediamo all'upload
         val ref = storage.reference.child("places/$placeId.jpg")
 
         try {
+            Log.d("REPO_DEBUG", "Inizio upload per nuovo file locale: $uriString")
             // 1. Esegui l'upload
-            val uploadTask = ref.putFile(uri).await()
+            ref.putFile(uri).await()
 
-            // 2. Recupera l'URL
+            // 2. Recupera l'URL definitivo
             val url = ref.downloadUrl.await().toString()
             return url
         } catch (e: Exception) {
             Log.e("REPO_DEBUG", "Errore dentro uploadPlaceImage: ${e.message}", e)
-            throw e // Rilanciamo l'errore per farlo catturare dal ViewModel
+            throw e
         }
+    }
+
+    // Aggiungi questo nel PlaceRepository
+    fun observePlaceById(placeId: String): Flow<Place?> = callbackFlow {
+        val docRef = placesCollection.document(placeId)
+
+        // Registriamo il listener in tempo reale
+        val registration = docRef.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                close(error)
+                return@addSnapshotListener
+            }
+            val place = snapshot?.toObject(Place::class.java)
+            trySend(place) // Invia il nuovo dato al Flow
+        }
+
+        // Fondamentale: rimuove il listener quando non serve più (evita sprechi di batteria/dati)
+        awaitClose { registration.remove() }
     }
 }
