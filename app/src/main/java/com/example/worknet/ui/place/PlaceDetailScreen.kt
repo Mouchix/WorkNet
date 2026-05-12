@@ -34,6 +34,9 @@ fun PlaceDetailScreen(
     viewModel: PlaceDetailViewModel,
     modifier: Modifier = Modifier
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.loadPlaceDetails()
+    }
     // Osserviamo lo stato del ViewModel in modo sicuro per il ciclo di vita
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isFavourite by viewModel.isFavourite.collectAsStateWithLifecycle()
