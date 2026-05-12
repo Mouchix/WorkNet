@@ -1,6 +1,8 @@
 package com.example.worknet.ui.profile.editProfile
 
+import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.border
@@ -27,6 +29,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.zIndex
+import java.io.File
+import androidx.activity.result.PickVisualMediaRequest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,12 +40,49 @@ fun EditProfileScreen(
     modifier: Modifier
 ) {
     val scrollState = rememberScrollState()
+    val context = LocalContext.current
+
+    val sheetState = rememberModalBottomSheetState()
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let { viewModel.onImageSelected(it) }
+        showBottomSheet = false
+    }
+
+    var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
     // Launcher per Selezionare Immagine
-    val photoLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let { viewModel.selectedImageUri = it }
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && tempPhotoUri != null) {
+            viewModel.onImageSelected(tempPhotoUri!!)
+        }
+        showBottomSheet = false
+    }
+
+    val launchCameraLogic = {
+        val file = createImageFile(context)
+        val uri = androidx.core.content.FileProvider.getUriForFile(
+            context,
+            "${context.packageName}.fileprovider",
+            file
+        )
+        tempPhotoUri = uri
+        cameraLauncher.launch(uri)
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            launchCameraLogic()
+        } else {
+            Toast.makeText(context, "Permesso fotocamera negato", Toast.LENGTH_SHORT).show()
+        }
     }
 
     // Launcher per Selezionare PDF
@@ -122,8 +163,6 @@ fun EditProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                val context = LocalContext.current
-
                 // --- AVATAR EDIT SECTION ---
                 Box(contentAlignment = Alignment.BottomEnd) {
                     AsyncImage(
@@ -132,17 +171,18 @@ fun EditProfileScreen(
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape)
-                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape),
+                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                            .clickable { showBottomSheet = true }, // Anche cliccando la foto si apre
                         contentScale = ContentScale.Crop,
                         error = rememberVectorPainter(Icons.Default.AccountCircle),
                         placeholder = rememberVectorPainter(Icons.Default.AccountCircle)
                     )
                     SmallFloatingActionButton(
-                        onClick = { photoLauncher.launch("image/*") },
+                        onClick = { showBottomSheet = true },
                         shape = CircleShape,
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     ) {
-                        Icon(Icons.Default.Edit, contentDescription = "Cambia foto", modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.PhotoCamera, contentDescription = "Cambia foto")
                     }
                 }
 
@@ -275,5 +315,68 @@ fun EditProfileScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
+        if (showBottomSheet) {
+            ModalBottomSheet(
+                onDismissRequest = { showBottomSheet = false },
+                sheetState = sheetState,
+                dragHandle = { BottomSheetDefaults.DragHandle() },
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
+                ) {
+                    Text(
+                        text = "Foto del profilo",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    ListItem(
+                        headlineContent = { Text("Scatta una foto") },
+                        leadingContent = { Icon(Icons.Default.PhotoCamera, contentDescription = null) },
+                        modifier = Modifier.clickable {
+                            // Miglioramento: Controllo se il permesso è già concesso
+                            val permissionCheck = androidx.core.content.ContextCompat.checkSelfPermission(
+                                context, android.Manifest.permission.CAMERA
+                            )
+                            if (permissionCheck == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                                launchCameraLogic()
+                            } else {
+                                cameraPermissionLauncher.launch(android.Manifest.permission.CAMERA)
+                            }
+                        }
+                    )
+
+                    ListItem(
+                        headlineContent = { Text("Scegli dalla galleria") },
+                        leadingContent = { Icon(Icons.Default.PhotoLibrary, contentDescription = null) },
+                        modifier = Modifier.clickable {
+                            galleryLauncher.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }
+                    )
+
+                    if (viewModel.selectedImageUri != null || viewModel.currentPhotoUrl != null) {
+                        ListItem(
+                            headlineContent = { Text("Rimuovi foto attuale", color = MaterialTheme.colorScheme.error) },
+                            leadingContent = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) },
+                            modifier = Modifier.clickable {
+                                viewModel.selectedImageUri = null
+                                viewModel.currentPhotoUrl = null
+                                showBottomSheet = false
+                            }
+                        )
+                    }
+                }
+            }
+        }
     }
+}
+
+fun createImageFile(context: Context): File {
+    val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    val storageDir = context.cacheDir // Usiamo la cache così non serve il permesso di scrittura
+    return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
 }

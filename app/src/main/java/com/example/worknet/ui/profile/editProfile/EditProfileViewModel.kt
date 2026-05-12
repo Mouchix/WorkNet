@@ -121,6 +121,10 @@ class EditProfileViewModel(
         }
     }
 
+    fun onImageSelected(uri: Uri) {
+        selectedImageUri = uri
+    }
+
     fun onResidenceChange(newValue: String, context: Context) {
         residence = newValue // 'residence' è la variabile che tiene il testo del campo
 

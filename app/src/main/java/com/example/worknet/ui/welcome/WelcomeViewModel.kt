@@ -45,7 +45,7 @@ class WelcomeViewModel(
                             userRepository.createUser(newUser)
                         }
                     } catch (e: Exception) {
-                        // Errore silenzioso o gestione specifica
+                        errorMessage = "Errore durante l'accesso con Google"
                     }
                 }
                 onSuccess()
