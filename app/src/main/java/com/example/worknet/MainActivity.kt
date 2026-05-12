@@ -5,8 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.worknet.navigation.AppNavigation
 import com.example.worknet.ui.theme.WorkNetTheme
-import com.google.firebase.auth.FirebaseAuth
-
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

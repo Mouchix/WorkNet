@@ -31,7 +31,6 @@ import com.example.worknet.navigation.NavigationRoute
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateProfileScreen(

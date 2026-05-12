@@ -7,7 +7,6 @@ import com.example.worknet.data.model.Application
 import com.example.worknet.data.model.User
 import com.example.worknet.ui.place.PlaceDetailViewModel
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle

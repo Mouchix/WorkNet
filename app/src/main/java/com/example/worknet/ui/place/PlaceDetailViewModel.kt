@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import kotlinx.coroutines.Dispatchers
 
 sealed class PlaceDetailUiState {
     object Loading : PlaceDetailUiState()

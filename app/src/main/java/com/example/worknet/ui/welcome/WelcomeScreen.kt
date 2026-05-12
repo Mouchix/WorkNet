@@ -20,7 +20,6 @@ import androidx.credentials.GetCredentialRequest
 import androidx.navigation.NavHostController
 import com.example.worknet.navigation.NavigationRoute
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import com.example.worknet.R
 

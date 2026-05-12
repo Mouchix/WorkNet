@@ -1,7 +1,6 @@
 package com.example.worknet.data.repository
 
 import android.net.Uri
-import android.system.Os.close
 import android.util.Log
 import com.example.worknet.data.model.Place
 import com.google.firebase.firestore.FirebaseFirestore
