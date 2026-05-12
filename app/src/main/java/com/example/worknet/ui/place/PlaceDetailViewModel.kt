@@ -22,7 +22,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
-import kotlinx.coroutines.Dispatchers
 
 sealed class PlaceDetailUiState {
     object Loading : PlaceDetailUiState()
@@ -46,17 +45,21 @@ class PlaceDetailViewModel(
     val isFavourite: StateFlow<Boolean> = _isFavourite.asStateFlow()
 
     init {
-        observePlaceData()
+        loadPlaceDetails()
         checkIfFavourite()
     }
 
-    private fun loadPlaceDetails() {
+    fun loadPlaceDetails() {
         viewModelScope.launch {
+            _uiState.value = PlaceDetailUiState.Loading
             try {
                 val place = placeRepository.getPlaceById(placeId)
                 if (place != null) {
                     val jobs = jobRepository.getJobsByPlace(placeId)
                     val owner = userRepository.getUserById(place.ownerId)
+
+                    // Controlliamo il preferito manualmente
+                    checkIfFavourite()
 
                     _uiState.value = PlaceDetailUiState.Success(place, jobs, owner)
                 } else {
@@ -252,22 +255,6 @@ class PlaceDetailViewModel(
                 e.printStackTrace()
             } finally {
                 onSuccess()
-            }
-        }
-    }
-
-    private fun observePlaceData() {
-        viewModelScope.launch {
-            // Ascoltiamo il repository in tempo reale
-            placeRepository.observePlaceById(placeId).collect { place ->
-                if (place != null) {
-                    val jobs = jobRepository.getJobsByPlace(placeId) // Puoi rendere reattivo anche questo
-                    val owner = userRepository.getUserById(place.ownerId)
-                    _uiState.value = PlaceDetailUiState.Success(place, jobs, owner)
-                } else {
-                    // Se il place è null, significa che è stato eliminato dal DB!
-                    _uiState.value = PlaceDetailUiState.Error
-                }
             }
         }
     }
