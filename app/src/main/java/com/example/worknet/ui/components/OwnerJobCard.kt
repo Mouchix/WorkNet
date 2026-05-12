@@ -21,6 +21,7 @@ fun OwnerJobCard(navController: NavHostController, job: Job, viewModel: PlaceDet
 
     val applications by viewModel.getApplicationsForJob(job.id)
         .collectAsState(initial = emptyList())
+    val pendingApplications = applications.filter { it.status == "pending" }
 
     ElevatedCard(
         modifier = Modifier
@@ -40,7 +41,8 @@ fun OwnerJobCard(navController: NavHostController, job: Job, viewModel: PlaceDet
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (applications.isNotEmpty()) {
+
+                if (pendingApplications.isNotEmpty()) {
                     Button(
                         onClick = { expanded = !expanded },
                         modifier = Modifier.wrapContentWidth()
@@ -52,8 +54,7 @@ fun OwnerJobCard(navController: NavHostController, job: Job, viewModel: PlaceDet
 
             if (expanded) {
                 Spacer(modifier = Modifier.height(8.dp))
-                applications
-                    .filter { it.status == "pending" }
+                pendingApplications
                     .forEach { application ->
                         CandidateRow(application, viewModel, onUserClick = { userId ->
                             navController.navigate(NavigationRoute.User(userId = userId))},

@@ -3,6 +3,7 @@ package com.example.worknet.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
@@ -45,6 +46,7 @@ import org.koin.core.parameter.parametersOf
 fun AppNavigation() {
     val navController = rememberNavController()
     val userRepository: UserRepository = koinInject()
+    val bottomBarViewModel: BottomBarViewModel = koinViewModel()
 
     val currentUser = userRepository.getCurrentUserId()
     val startDestination = if (currentUser != null) {
@@ -71,7 +73,6 @@ fun AppNavigation() {
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
-                val bottomBarViewModel: BottomBarViewModel = koinViewModel()
                 BottomBar(navController, bottomBarViewModel)
             }
         }
