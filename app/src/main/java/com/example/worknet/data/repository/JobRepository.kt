@@ -52,4 +52,21 @@ class JobRepository(
     suspend fun deleteJob(placeId: String, jobId: String) {
         jobsCollection(placeId).document(jobId).delete().await()
     }
+
+    suspend fun deleteJobsByPlace(placeId: String) {
+        try {
+            // 1. Ottieni tutti i job del place
+            val snapshot = jobsCollection(placeId).get().await()
+
+            // 2. Elimina ogni job usando la tua funzione deleteJob
+            for (doc in snapshot.documents) {
+                val jobId = doc.id
+                deleteJob(placeId, jobId)
+            }
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        }
+    }
 }

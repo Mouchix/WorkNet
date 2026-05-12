@@ -27,14 +27,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.worknet.data.model.Job
 import org.koin.androidx.compose.koinViewModel
 import com.example.worknet.ui.components.SectionTitle
+import com.example.worknet.ui.components.JobInputCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddPlaceScreen(
     navController: NavHostController,
+    placeId: String? = null,   // NULL = CREA, NON NULL = MODIFICA
     viewModel: AddPlaceViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
@@ -42,31 +43,39 @@ fun AddPlaceScreen(
     var showImageSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
-    // Launcher per la Galleria
-    val galleryLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let { viewModel.onImageSelected(it) }
-    }
-
-    // Launcher per la Fotocamera
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap ->
         bitmap?.let { viewModel.onPhotoTaken(it, context) }
     }
 
-    // Ascoltatore per i messaggi del ViewModel
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { viewModel.onImageSelected(it) }
+    }
+
+
+    // Se siamo in modalità modifica, carichiamo i dati
+    LaunchedEffect(placeId) {
+        if (placeId != null) {
+            viewModel.loadPlace(placeId)
+        }
+    }
+
+    // Toast dal ViewModel
     LaunchedEffect(Unit) {
         viewModel.toastMessage.collect { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
+    val isEditMode = placeId != null
+
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Aggiungi Attività") },
+                title = { Text(if (isEditMode) "Modifica Attività" else "Aggiungi Attività") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.Close, contentDescription = "Annulla")
@@ -83,7 +92,8 @@ fun AddPlaceScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // --- SEZIONE IMMAGINE ---
+
+            // --- FOTO ---
             SectionTitle("Foto dell'attività")
             Box(
                 modifier = Modifier
@@ -109,7 +119,7 @@ fun AddPlaceScreen(
                 }
             }
 
-            // --- INFO PLACE ---
+            // --- INFO GENERALI ---
             SectionTitle("Informazioni Generali")
             OutlinedTextField(
                 value = viewModel.placeTitle,
@@ -127,10 +137,10 @@ fun AddPlaceScreen(
                 minLines = 3
             )
 
-            // --- POSIZIONE (Indirizzo -> Coordinate) ---
+            // --- POSIZIONE ---
             SectionTitle("Posizione")
 
-            Box(modifier = Modifier.fillMaxWidth().zIndex(1f)) { // zIndex importante per far apparire i suggerimenti sopra tutto
+            Box(modifier = Modifier.fillMaxWidth().zIndex(1f)) {
                 Column {
                     OutlinedTextField(
                         value = viewModel.placeAddress,
@@ -149,7 +159,6 @@ fun AddPlaceScreen(
                         singleLine = true
                     )
 
-                    // Menu dei suggerimenti
                     if (viewModel.addressSuggestions.isNotEmpty()) {
                         ElevatedCard(
                             modifier = Modifier
@@ -160,7 +169,6 @@ fun AddPlaceScreen(
                         ) {
                             Column {
                                 viewModel.addressSuggestions.forEach { address ->
-                                    // Formattiamo l'indirizzo per la riga
                                     val street = address.thoroughfare ?: ""
                                     val number = address.subThoroughfare ?: ""
                                     val city = address.locality ?: ""
@@ -186,7 +194,7 @@ fun AddPlaceScreen(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-            // --- SEZIONE JOBS ---
+            // --- JOBS ---
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -210,24 +218,41 @@ fun AddPlaceScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
+            // --- BOTTONE FINALE ---
             Button(
-                onClick = { viewModel.savePlace { navController.popBackStack()} },
+                onClick = {
+                    if (isEditMode) {
+                        viewModel.updatePlace(placeId!!) {
+                            navController.popBackStack()
+                        }
+                    } else {
+                        viewModel.savePlace {
+                            navController.popBackStack()
+                        }
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
-                enabled = viewModel.isFormValid(), // Controllo validità
+                enabled = viewModel.isFormValid(),
                 shape = RoundedCornerShape(12.dp)
             ) {
                 if (viewModel.isSaving) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
                 } else {
-                    Text("Pubblica Annuncio", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        if (isEditMode) "Salva Modifiche" else "Pubblica Annuncio",
+                        style = MaterialTheme.typography.titleMedium
+                    )
                 }
             }
         }
     }
 
-    // --- SHEET PER SELEZIONE FOTO ---
+    // --- BOTTOM SHEET FOTO ---
     if (showImageSheet) {
         ModalBottomSheet(
             onDismissRequest = { showImageSheet = false },
@@ -250,77 +275,6 @@ fun AddPlaceScreen(
                         galleryLauncher.launch("image/*")
                     }
                 )
-            }
-        }
-    }
-}
-@Composable
-fun JobInputCard(job: Job, onRemove: () -> Unit, onUpdate: (Job) -> Unit) {
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Dettagli Job", style = MaterialTheme.typography.labelLarge)
-                IconButton(onClick = onRemove) {
-                    Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                }
-            }
-            OutlinedTextField(
-                value = job.title,
-                onValueChange = { onUpdate(job.copy(title = it)) },
-                label = { Text("Titolo (es. Cameriere)") },
-                modifier = Modifier.fillMaxWidth()
-            )
-            OutlinedTextField(
-                value = job.description,
-                onValueChange = { onUpdate(job.copy(description = it)) },
-                label = { Text("Descrizione") },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddressAutocompleteField(
-    viewModel: AddPlaceViewModel,
-    context: Context
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        OutlinedTextField(
-            value = viewModel.placeAddress,
-            onValueChange = { viewModel.onAddressChange(it, context) },
-            label = { Text("Indirizzo attività") },
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
-            trailingIcon = {
-                if (viewModel.latitude != null) {
-                    Icon(Icons.Default.CheckCircle, contentDescription = null, tint = Color.Green)
-                }
-            },
-            singleLine = true
-        )
-
-        // Mostriamo i suggerimenti solo se la lista non è vuota
-        if (viewModel.addressSuggestions.isNotEmpty()) {
-            ElevatedCard(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 4.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Column {
-                    viewModel.addressSuggestions.forEach { address ->
-                        val displayAddress = "${address.thoroughfare ?: ""} ${address.subThoroughfare ?: ""}, ${address.locality ?: ""}"
-                        ListItem(
-                            headlineContent = { Text(displayAddress) },
-                            modifier = Modifier.clickable {
-                                viewModel.selectAddress(address)
-                            }
-                        )
-                        HorizontalDivider()
-                    }
-                }
             }
         }
     }

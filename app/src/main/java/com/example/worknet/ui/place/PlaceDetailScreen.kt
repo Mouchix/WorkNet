@@ -13,9 +13,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.worknet.ui.components.JobCard
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -25,13 +22,11 @@ import com.example.worknet.ui.components.OwnerJobCard
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import com.example.worknet.navigation.NavigationRoute
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.material.icons.filled.*
 
 @Composable
 fun PlaceDetailScreen(
@@ -68,6 +63,7 @@ fun PlaceDetailScreen(
             ) {
                 // Foto, back button
                 item {
+                    var showDeleteDialog by remember { mutableStateOf(false) }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -80,18 +76,32 @@ fun PlaceDetailScreen(
                                 contentDescription = null,
                                 modifier = Modifier
                                     .fillMaxSize() // Riempie tutto il Box
-                                    .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
+                                    .clip(
+                                        RoundedCornerShape(
+                                            bottomStart = 24.dp,
+                                            bottomEnd = 24.dp
+                                        )
+                                    ),
                                 contentScale = ContentScale.Crop
                             )
                         } else {
                             Surface(
                                 modifier = Modifier
                                     .fillMaxSize()
-                                    .clip(RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp)),
+                                    .clip(
+                                        RoundedCornerShape(
+                                            bottomStart = 24.dp,
+                                            bottomEnd = 24.dp
+                                        )
+                                    ),
                                 color = MaterialTheme.colorScheme.surfaceVariant
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Icon(Icons.Default.Image, contentDescription = null, modifier = Modifier.size(48.dp))
+                                    Icon(
+                                        Icons.Default.Image,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(48.dp)
+                                    )
                                 }
                             }
                         }
@@ -114,6 +124,82 @@ fun PlaceDetailScreen(
                                 modifier = Modifier.size(24.dp)
                             )
                         }
+
+                        if (isOwner) {
+
+                            // Pulsante Modifica
+                            FilledIconButton(
+                                onClick = {
+                                    navController.navigate(NavigationRoute.EditPlace(place.id))
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(16.dp)
+                                    .size(40.dp),
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                                    contentColor = MaterialTheme.colorScheme.onSurface
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = "Modifica",
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+
+                            // Pulsante Elimina
+                            FilledIconButton(
+                                onClick = { showDeleteDialog = true },
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(
+                                        end = 72.dp,
+                                        top = 16.dp
+                                    ) // spostato a sinistra della matita
+                                    .size(40.dp),
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
+                                    contentColor = MaterialTheme.colorScheme.error
+                                )
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Elimina",
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    if (showDeleteDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDeleteDialog = false },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    showDeleteDialog = false
+                                    viewModel.deletePlace(place.id) {
+                                        navController.popBackStack() // Torna alla home
+                                    }
+                                }) {
+                                    Text("Elimina")
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showDeleteDialog = false }) {
+                                    Text("Annulla")
+                                }
+                            },
+                            title = { Text("Eliminare l'annuncio?") },
+                            text = { Text("Questa azione non può essere annullata.") },
+                            icon = {
+                                Icon(
+                                    Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        )
                     }
                 }
                 // Titolo, like button e descrizione

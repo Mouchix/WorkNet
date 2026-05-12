@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
 
 sealed class PlaceDetailUiState {
     object Loading : PlaceDetailUiState()
@@ -45,7 +46,7 @@ class PlaceDetailViewModel(
     val isFavourite: StateFlow<Boolean> = _isFavourite.asStateFlow()
 
     init {
-        loadPlaceDetails()
+        observePlaceData()
         checkIfFavourite()
     }
 
@@ -238,4 +239,36 @@ class PlaceDetailViewModel(
         }
     }
 
+    fun deletePlace(placeId: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                // 1. Elimina tutti i job associati
+                jobRepository.deleteJobsByPlace(placeId)
+
+                // 2. Elimina il place
+                placeRepository.deletePlace(placeId)
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                onSuccess()
+            }
+        }
+    }
+
+    private fun observePlaceData() {
+        viewModelScope.launch {
+            // Ascoltiamo il repository in tempo reale
+            placeRepository.observePlaceById(placeId).collect { place ->
+                if (place != null) {
+                    val jobs = jobRepository.getJobsByPlace(placeId) // Puoi rendere reattivo anche questo
+                    val owner = userRepository.getUserById(place.ownerId)
+                    _uiState.value = PlaceDetailUiState.Success(place, jobs, owner)
+                } else {
+                    // Se il place è null, significa che è stato eliminato dal DB!
+                    _uiState.value = PlaceDetailUiState.Error
+                }
+            }
+        }
+    }
 }
