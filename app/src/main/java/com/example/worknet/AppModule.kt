@@ -53,7 +53,7 @@ val appModule = module {
 
     viewModel { params -> EditProfileViewModel(params.get(),get()) }
 
-    viewModel { WelcomeViewModel() }
+    viewModel { WelcomeViewModel(get()) }
 
     viewModel { CreateProfileViewModel(get()) }
 

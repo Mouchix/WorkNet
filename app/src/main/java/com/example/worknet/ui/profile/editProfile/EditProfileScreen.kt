@@ -18,12 +18,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.zIndex
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,6 +122,8 @@ fun EditProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                val context = LocalContext.current
+
                 // --- AVATAR EDIT SECTION ---
                 Box(contentAlignment = Alignment.BottomEnd) {
                     AsyncImage(
@@ -179,13 +184,54 @@ fun EditProfileScreen(
                     leadingIcon = { Icon(Icons.Default.School, contentDescription = null) }
                 )
 
-                OutlinedTextField(
-                    value = viewModel.residence,
-                    onValueChange = { viewModel.residence = it },
-                    label = { Text("Residenza") },
-                    modifier = Modifier.fillMaxWidth(),
-                    leadingIcon = { Icon(Icons.Default.LocationCity, contentDescription = null) }
-                )
+                Box(modifier = Modifier.fillMaxWidth().zIndex(1f)) {
+                    Column {
+                        OutlinedTextField(
+                            value = viewModel.residence,
+                            onValueChange = { viewModel.onResidenceChange(it, context) },
+                            label = { Text("Città di residenza") },
+                            modifier = Modifier.fillMaxWidth(),
+                            leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
+                            trailingIcon = {
+                                if (viewModel.isGeocoding) {
+                                    CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                                }
+                            },
+                            singleLine = true
+                        )
+
+                        // Menu dei suggerimenti (appare solo se ci sono risultati)
+                        if (viewModel.addressSuggestions.isNotEmpty()) {
+                            ElevatedCard(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 4.dp),
+                                shape = RoundedCornerShape(8.dp),
+                                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                            ) {
+                                Column {
+                                    viewModel.addressSuggestions.forEach { address ->
+                                        val displayAddress = listOfNotNull(
+                                            address.locality,
+                                            address.adminArea,
+                                            address.countryName
+                                        ).filter { !it.isNullOrBlank() }.joinToString(", ")
+
+                                        ListItem(
+                                            headlineContent = { Text(displayAddress) },
+                                            modifier = Modifier.clickable {
+                                                viewModel.selectResidence(address)
+                                            }
+                                        )
+                                        if (address != viewModel.addressSuggestions.last()) {
+                                            HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 OutlinedTextField(
                     value = viewModel.description,

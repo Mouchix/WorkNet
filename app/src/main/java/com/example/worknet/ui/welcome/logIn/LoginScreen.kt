@@ -149,69 +149,6 @@ fun LoginScreen(
                     Text("ACCEDI", fontWeight = FontWeight.Bold)
                 }
             }
-
-            Spacer(Modifier.height(32.dp))
-
-            // --- DIVISORE SOCIAL ---
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                HorizontalDivider(Modifier.weight(1f))
-                Text(
-                    "oppure",
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.outline
-                )
-                HorizontalDivider(Modifier.weight(1f))
-            }
-
-            Spacer(Modifier.height(24.dp))
-
-            // --- BOTTONE GOOGLE ---
-            OutlinedButton(
-                onClick = {
-                    scope.launch {
-                        try {
-                            // 1. Configura la richiesta Google
-                            val googleIdOption = GetGoogleIdOption.Builder()
-                                .setFilterByAuthorizedAccounts(false)
-                                .setServerClientId("83193789853-pno8uudc08g35en6ibvdnoj3g9c5uckl.apps.googleusercontent.com") // <--- IMPORTANTE
-                                .build()
-
-                            val request = GetCredentialRequest.Builder()
-                                .addCredentialOption(googleIdOption)
-                                .build()
-
-                            // 2. Lancia il selettore
-                            val result = credentialManager.getCredential(context, request)
-
-                            // 3. Estrai il token e passalo al ViewModel
-                            val googleIdToken = com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-                                .createFrom(result.credential.data).idToken
-
-                            viewModel.onGoogleSignInResult(googleIdToken) {
-                                navController.navigate(NavigationRoute.Home) {
-                                    popUpTo(NavigationRoute.Welcome) { inclusive = true }
-                                }
-                            }
-                        } catch (e: Exception) {
-                            viewModel.errorMessage = "Accesso Google annullato o fallito " + e.message
-                        }
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccountCircle, // Puoi sostituire con logo Google reale
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
-                Spacer(Modifier.width(12.dp))
-                Text("Accedi con Google", color = MaterialTheme.colorScheme.onSurface)
-            }
         }
     }
 }

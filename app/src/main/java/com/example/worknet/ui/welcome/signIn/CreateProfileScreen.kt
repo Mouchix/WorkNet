@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.worknet.navigation.NavigationRoute
@@ -109,6 +110,8 @@ fun CreateProfileScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            val context = LocalContext.current
+
             // --- SEZIONE FOTO ---
             Box(contentAlignment = Alignment.BottomEnd) {
                 Surface(
@@ -234,6 +237,7 @@ fun CreateProfileScreen(
                 Box(Modifier.matchParentSize().clickable { showDatePicker = true })
             }
 
+            // Titolo di Studi
             OutlinedTextField(
                 value = viewModel.education,
                 onValueChange = { viewModel.education = it },
@@ -243,14 +247,56 @@ fun CreateProfileScreen(
                 shape = RoundedCornerShape(12.dp)
             )
 
-            OutlinedTextField(
-                value = viewModel.residence,
-                onValueChange = { viewModel.residence = it },
-                label = { Text("Residenza") },
-                modifier = Modifier.fillMaxWidth(),
-                leadingIcon = { Icon(Icons.Default.LocationOn, null) },
-                shape = RoundedCornerShape(12.dp)
-            )
+            // Residenza
+            Box(modifier = Modifier.fillMaxWidth().zIndex(1f)) {
+                Column {
+                    OutlinedTextField(
+                        value = viewModel.residence,
+                        onValueChange = { viewModel.onResidenceChange(it, context) },
+                        label = { Text("Città di residenza") },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.LocationOn, contentDescription = null) },
+                        trailingIcon = {
+                            if (viewModel.isGeocoding) {
+                                CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                            }
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        singleLine = true
+                    )
+
+                    // Menu dei suggerimenti (appare solo se ci sono risultati)
+                    if (viewModel.addressSuggestions.isNotEmpty()) {
+                        ElevatedCard(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 4.dp),
+                            shape = RoundedCornerShape(8.dp),
+                            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 8.dp)
+                        ) {
+                            Column {
+                                viewModel.addressSuggestions.forEach { address ->
+                                    val displayAddress = listOfNotNull(
+                                        address.locality,
+                                        address.adminArea,
+                                        address.countryName
+                                    ).filter { !it.isNullOrBlank() }.joinToString(", ")
+
+                                    ListItem(
+                                        headlineContent = { Text(displayAddress) },
+                                        modifier = Modifier.clickable {
+                                            viewModel.selectResidence(address)
+                                        }
+                                    )
+                                    if (address != viewModel.addressSuggestions.last()) {
+                                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             OutlinedTextField(
                 value = viewModel.description,

@@ -23,6 +23,7 @@ material3 = "1.4.0"
 lifecycleViewmodelCompose = "2.10.0"
 foundation = "1.11.1"
 foundationLayout = "1.11.1"
+uiText = "1.11.1"
 
 [libraries]
 androidx-compose-material = { module = "androidx.compose.material:material", version.ref = "materialVersion" }
@@ -65,6 +66,7 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3",
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidxCompose" }
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "foundation" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout", version.ref = "foundationLayout" }
+androidx-compose-ui-text = { group = "androidx.compose.ui", name = "ui-text", version.ref = "uiText" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

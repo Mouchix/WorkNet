@@ -1,12 +1,19 @@
 package com.example.worknet.ui.welcome.signIn
 
+import android.content.Context
+import android.location.Address
+import android.location.Geocoder
 import android.net.Uri
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.worknet.data.model.User
 import com.example.worknet.data.repository.UserRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 class CreateProfileViewModel(
     private val userRepository: UserRepository
@@ -30,6 +37,12 @@ class CreateProfileViewModel(
 
     var isCreating by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
+
+    // Geocoder
+    var addressSuggestions = mutableStateListOf<Address>()
+        private set
+    private var searchJob: kotlinx.coroutines.Job? = null
+    var isGeocoding by mutableStateOf(false)
 
     // Semplice validazione
     val canCreate: Boolean
@@ -94,5 +107,45 @@ class CreateProfileViewModel(
                 isCreating = false
             }
         }
+    }
+
+    fun onResidenceChange(newValue: String, context: Context) {
+        residence = newValue // 'residence' è la variabile che tiene il testo del campo
+
+        searchJob?.cancel()
+
+        if (newValue.length > 3) {
+            searchJob = viewModelScope.launch {
+                delay(500) // Debouncing
+                try {
+                    val geocoder = Geocoder(context, Locale.getDefault())
+                    val results = withContext(Dispatchers.IO) {
+                        // Cerchiamo fino a 5 indirizzi simili
+                        geocoder.getFromLocationName(newValue, 5)
+                    }
+                    addressSuggestions.clear()
+                    if (results != null) {
+                        addressSuggestions.addAll(results)
+                    }
+                } catch (e: Exception) {
+                    addressSuggestions.clear()
+                }
+            }
+        } else {
+            addressSuggestions.clear()
+        }
+    }
+
+    fun selectResidence(address: Address) {
+        // Formattiamo l'indirizzo (es. "Milano, MI, Italia")
+        val city = address.locality ?: ""
+        val province = address.adminArea ?: ""
+        val country = address.countryName ?: ""
+
+        residence = listOfNotNull(city, province, country)
+            .filter { it.isNotBlank() }
+            .joinToString(", ")
+
+        addressSuggestions.clear() // Chiudiamo i suggerimenti
     }
 }

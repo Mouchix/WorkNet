@@ -1,7 +1,10 @@
 package com.example.worknet.ui.profile.editProfile
 
+import android.location.Address
+import android.location.Geocoder
 import android.net.Uri
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -12,6 +15,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
+import android.content.Context
 
 class EditProfileViewModel(
     val userId: String,
@@ -33,6 +38,12 @@ class EditProfileViewModel(
     // Dati attuali dal DB
     var currentPhotoUrl by mutableStateOf<String?>(null)
     var currentCvName by mutableStateOf<String?>(null)
+
+    // Geocoder
+    var addressSuggestions = mutableStateListOf<Address>()
+        private set
+    private var searchJob: kotlinx.coroutines.Job? = null
+    var isGeocoding by mutableStateOf(false)
 
     var isLoading by mutableStateOf(false)
     var isSaving by mutableStateOf(false)
@@ -108,5 +119,45 @@ class EditProfileViewModel(
                 isSaving = false
             }
         }
+    }
+
+    fun onResidenceChange(newValue: String, context: Context) {
+        residence = newValue // 'residence' è la variabile che tiene il testo del campo
+
+        // Cancelliamo la ricerca precedente per non sovraccaricare il sistema
+        searchJob?.cancel()
+
+        if (newValue.length > 3) {
+            searchJob = viewModelScope.launch {
+                delay(500) // Debouncing
+                try {
+                    val geocoder = Geocoder(context, Locale.getDefault())
+                    val results = withContext(Dispatchers.IO) {
+                        geocoder.getFromLocationName(newValue, 5)
+                    }
+                    addressSuggestions.clear()
+                    if (results != null) {
+                        addressSuggestions.addAll(results)
+                    }
+                } catch (e: Exception) {
+                    addressSuggestions.clear()
+                }
+            }
+        } else {
+            addressSuggestions.clear()
+        }
+    }
+
+    fun selectResidence(address: Address) {
+        // Formattiamo l'indirizzo (es. "Milano, MI, Italia")
+        val city = address.locality ?: ""
+        val province = address.adminArea ?: ""
+        val country = address.countryName ?: ""
+
+        residence = listOfNotNull(city, province, country)
+            .filter { it.isNotBlank() }
+            .joinToString(", ")
+
+        addressSuggestions.clear() // Chiudiamo i suggerimenti
     }
 }

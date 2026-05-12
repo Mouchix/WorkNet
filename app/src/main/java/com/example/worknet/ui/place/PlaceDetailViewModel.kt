@@ -18,6 +18,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.widget.Toast
 
 sealed class PlaceDetailUiState {
     object Loading : PlaceDetailUiState()
@@ -68,6 +72,22 @@ class PlaceDetailViewModel(
             val userId = userRepository.getCurrentUserId() ?: return@launch
             val user = userRepository.getUserById(userId)
             _isFavourite.value = user?.savedPlaces?.contains(placeId) ?: false
+        }
+    }
+
+    fun openMapIntent(context: Context, place: Place) {
+        // Se abbiamo le coordinate o meno
+        val uri = if (place.latitude != null && place.longitude != null) {
+            Uri.parse("geo:${place.latitude},${place.longitude}?q=${Uri.encode(place.address)}")
+        } else {
+            Uri.parse("geo:0,0?q=${Uri.encode(place.address)}")
+        }
+
+        val mapIntent = Intent(Intent.ACTION_VIEW, uri)
+        try {
+            context.startActivity(mapIntent)
+        } catch (e: Exception) {
+            Toast.makeText(context, "Nessuna app di mappe trovata", Toast.LENGTH_SHORT).show()
         }
     }
 
