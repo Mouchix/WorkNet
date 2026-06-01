@@ -58,9 +58,14 @@ fun HomeScreen(
         }
     ){ scaffoldPadding ->
         LazyColumn(
-            modifier = modifier.fillMaxSize().padding(scaffoldPadding),
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(16.dp)
+            contentPadding = PaddingValues(
+                start = 16.dp,
+                top = scaffoldPadding.calculateTopPadding() + 16.dp,
+                end = 16.dp,
+                bottom = innerPadding.calculateBottomPadding() + 16.dp
+            )
         ) {
             item {
                 OutlinedTextField(
