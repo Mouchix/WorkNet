@@ -28,10 +28,8 @@ class WelcomeViewModel(
                 val firebaseUser = FirebaseAuth.getInstance().currentUser
                 if (firebaseUser != null) {
                     try {
-                        // Verifica se il profilo Firestore esiste già
                         val existingUser = userRepository.getUserById(firebaseUser.uid)
                         if (existingUser == null) {
-                            // Creazione profilo minimale se nuovo utente
                             val newUser = User(
                                 id = firebaseUser.uid,
                                 name = firebaseUser.displayName ?: "Utente Google",

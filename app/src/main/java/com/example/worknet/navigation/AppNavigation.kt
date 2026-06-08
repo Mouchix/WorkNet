@@ -115,12 +115,7 @@ fun AppNavigation() {
 
             composable<NavigationRoute.PlaceDetail> { backStackEntry ->
                 val args = backStackEntry.toRoute<NavigationRoute.PlaceDetail>()
-
-                // Passiamo il placeId a Koin affinché possa iniettarlo nel ViewModel
                 val placeDetailViewModel: PlaceDetailViewModel = koinViewModel { parametersOf(args.placeId) }
-
-                // Qui NON passiamo l'innerPadding (o lo gestiamo internamente)
-                // così l'immagine può andare sotto la barra di stato
                 PlaceDetailScreen(navController, placeDetailViewModel, Modifier.padding(innerPadding))
             }
 

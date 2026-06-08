@@ -40,7 +40,6 @@ class FavouritesViewModel(
         viewModelScope.launch {
             _uiState.value = FavouritesUiState.Loading
             try {
-                // 1. Prendi l'utente corrente
                 val user = userRepository.getCurrentUser()
                 val favoriteIds = user?.savedPlaces ?: emptyList()
 
@@ -52,7 +51,7 @@ class FavouritesViewModel(
                 val placesWithJobs = favoriteIds.mapNotNull { id ->
                     val place = placeRepository.getPlaceById(id)
                     if (place != null) {
-                        val jobs = jobRepository.getJobsByPlace(id) // Recupera i job dell'attività
+                        val jobs = jobRepository.getJobsByPlace(id)
                         PlaceWithJobs(place, jobs)
                     } else null
                 }

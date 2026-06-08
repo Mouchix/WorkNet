@@ -27,18 +27,6 @@ class NotificationRepository(
     }
 
     // ---------------------------------------------------------
-    // LETTURA NOTIFICHE (una tantum)
-    // ---------------------------------------------------------
-    suspend fun getNotifications(userId: String): List<Notification> {
-        val snapshot = notificationsCollection(userId)
-            .orderBy("createdAt")
-            .get()
-            .await()
-
-        return snapshot.toObjects(Notification::class.java)
-    }
-
-    // ---------------------------------------------------------
     // LETTURA IN TEMPO REALE (Flow)
     // ---------------------------------------------------------
     fun observeNotifications(userId: String): Flow<List<Notification>> = callbackFlow {
@@ -75,14 +63,6 @@ class NotificationRepository(
             .document(notificationId)
             .delete()
             .await()
-    }
-
-    // ---------------------------------------------------------
-    // ELIMINARE TUTTE LE NOTIFICHE (opzionale)
-    // ---------------------------------------------------------
-    suspend fun clearAllNotifications(userId: String) {
-        val snapshot = notificationsCollection(userId).get().await()
-        snapshot.documents.forEach { it.reference.delete().await() }
     }
 
     fun observeUnreadNotifications(userId: String): Flow<List<Notification>> = callbackFlow {

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -29,15 +30,15 @@ fun LoginScreen(
     viewModel: LoginViewModel
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val credentialManager = CredentialManager.create(context)
+    rememberCoroutineScope()
+    CredentialManager.create(context)
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Accedi", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Indietro")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro")
                     }
                 }
             )
@@ -110,7 +111,6 @@ fun LoginScreen(
                 singleLine = true
             )
 
-            // Messaggio di errore generale dal ViewModel
             viewModel.errorMessage?.let {
                 Text(
                     text = it,

@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
+import androidx.core.net.toUri
 
 sealed class PlaceDetailUiState {
     object Loading : PlaceDetailUiState()
@@ -58,7 +59,6 @@ class PlaceDetailViewModel(
                     val jobs = jobRepository.getJobsByPlace(placeId)
                     val owner = userRepository.getUserById(place.ownerId)
 
-                    // Controlliamo il preferito manualmente
                     checkIfFavourite()
 
                     _uiState.value = PlaceDetailUiState.Success(place, jobs, owner)
@@ -80,11 +80,10 @@ class PlaceDetailViewModel(
     }
 
     fun openMapIntent(context: Context, place: Place) {
-        // Se abbiamo le coordinate o meno
         val uri = if (place.latitude != null && place.longitude != null) {
-            Uri.parse("geo:${place.latitude},${place.longitude}?q=${Uri.encode(place.address)}")
+            "geo:${place.latitude},${place.longitude}?q=${Uri.encode(place.address)}".toUri()
         } else {
-            Uri.parse("geo:0,0?q=${Uri.encode(place.address)}")
+            "geo:0,0?q=${Uri.encode(place.address)}".toUri()
         }
 
         val mapIntent = Intent(Intent.ACTION_VIEW, uri)
@@ -123,12 +122,10 @@ class PlaceDetailViewModel(
             )
             applicationRepository.createApplication(application)
 
-            // Recupo il place per sapere chi è il proprietario
             val place = placeRepository.getPlaceById(placeId)
             val ownerId = place?.ownerId
 
             if (ownerId != null) {
-                // 3. Crea la notifica per il proprietario
                 val ownerNotification = Notification(
                     id = "notif_${System.currentTimeMillis()}",
                     title = "Nuova candidatura ricevuta",
@@ -245,10 +242,7 @@ class PlaceDetailViewModel(
     fun deletePlace(placeId: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
             try {
-                // 1. Elimina tutti i job associati
                 jobRepository.deleteJobsByPlace(placeId)
-
-                // 2. Elimina il place
                 placeRepository.deletePlace(placeId)
 
             } catch (e: Exception) {

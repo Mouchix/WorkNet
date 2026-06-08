@@ -54,7 +54,6 @@ fun EditProfileScreen(
 
     var tempPhotoUri by remember { mutableStateOf<Uri?>(null) }
 
-    // Launcher per Selezionare Immagine
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
@@ -85,7 +84,6 @@ fun EditProfileScreen(
         }
     }
 
-    // Launcher per Selezionare PDF
     val cvLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
@@ -172,7 +170,7 @@ fun EditProfileScreen(
                             .size(120.dp)
                             .clip(CircleShape)
                             .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
-                            .clickable { showBottomSheet = true }, // Anche cliccando la foto si apre
+                            .clickable { showBottomSheet = true },
                         contentScale = ContentScale.Crop,
                         error = rememberVectorPainter(Icons.Default.AccountCircle),
                         placeholder = rememberVectorPainter(Icons.Default.AccountCircle)
@@ -198,7 +196,6 @@ fun EditProfileScreen(
                     singleLine = true
                 )
 
-                // Campo Data di Nascita (Read Only con Picker)
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = viewModel.birthDate,
@@ -208,7 +205,6 @@ fun EditProfileScreen(
                         leadingIcon = { Icon(Icons.Default.CalendarToday, contentDescription = null) },
                         readOnly = true
                     )
-                    // Box trasparente sopra per intercettare il click
                     Box(
                         modifier = Modifier
                             .matchParentSize()
@@ -240,7 +236,6 @@ fun EditProfileScreen(
                             singleLine = true
                         )
 
-                        // Menu dei suggerimenti (appare solo se ci sono risultati)
                         if (viewModel.addressSuggestions.isNotEmpty()) {
                             ElevatedCard(
                                 modifier = Modifier
@@ -336,7 +331,6 @@ fun EditProfileScreen(
                         headlineContent = { Text("Scatta una foto") },
                         leadingContent = { Icon(Icons.Default.PhotoCamera, contentDescription = null) },
                         modifier = Modifier.clickable {
-                            // Miglioramento: Controllo se il permesso è già concesso
                             val permissionCheck = androidx.core.content.ContextCompat.checkSelfPermission(
                                 context, android.Manifest.permission.CAMERA
                             )
@@ -377,6 +371,6 @@ fun EditProfileScreen(
 
 fun createImageFile(context: Context): File {
     val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-    val storageDir = context.cacheDir // Usiamo la cache così non serve il permesso di scrittura
+    val storageDir = context.cacheDir
     return File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
 }

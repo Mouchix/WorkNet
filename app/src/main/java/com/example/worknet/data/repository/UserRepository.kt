@@ -16,20 +16,16 @@ class UserRepository(
     private val usersCollection = db.collection("users")
 
     // ---------------------------------------------------------
-    // GESTIONE SESSIONE (Metodi Standard aggiunti)
+    // GESTIONE SESSIONE
     // ---------------------------------------------------------
 
-    // Restituisce l'ID dell'utente attualmente loggato in Firebase Auth
     fun getCurrentUserId(): String? = auth.currentUser?.uid
 
-
-    // Recupera i dati completi dell'utente loggato
     suspend fun getCurrentUser(): User? {
         val userId = getCurrentUserId() ?: return null
         return getUserById(userId)
     }
 
-    // Effettua il logout dalla sessione
     fun logout() {
         auth.signOut()
     }
@@ -43,11 +39,9 @@ class UserRepository(
 
     suspend fun signUp(email: String, password: String, userData: User): Result<Unit> {
         return try {
-            // 1. Crea l'utente su Firebase Auth (gestione sicura password)
             val authResult = auth.createUserWithEmailAndPassword(email, password).await()
             val userId = authResult.user?.uid ?: throw Exception("ID utente non trovato")
 
-            // 2. Salva i dati aggiuntivi su Firestore usando l'ID appena creato
             val userWithId = userData.copy(id = userId)
             usersCollection.document(userId).set(userWithId).await()
 
@@ -108,37 +102,6 @@ class UserRepository(
         usersCollection.document(user.id).set(user).await()
     }
 
-    suspend fun updateName(userId: String, name: String) {
-        usersCollection.document(userId).update("name", name).await()
-    }
-
-    suspend fun updateDescription(userId: String, description: String) {
-        usersCollection.document(userId).update("description", description).await()
-    }
-
-    suspend fun updateEducation(userId: String, education: String) {
-        usersCollection.document(userId).update("education", education).await()
-    }
-
-    suspend fun updateResidence(userId: String, residence: String) {
-        usersCollection.document(userId).update("residence", residence).await()
-    }
-
-    suspend fun updateProfilePhoto(userId: String, url: String) {
-        usersCollection.document(userId).update("photoUrl", url).await()
-    }
-
-    suspend fun updateCv(userId: String, url: String) {
-        usersCollection.document(userId).update("cvUrl", url).await()
-    }
-
-    // ---------------------------------------------------------
-    // ELIMINAZIONE UTENTE
-    // ---------------------------------------------------------
-    suspend fun deleteUser(userId: String) {
-        usersCollection.document(userId).delete().await()
-    }
-
     // ---------------------------------------------------------
     // GESTIONE PREFERITI
     // ---------------------------------------------------------
@@ -152,18 +115,6 @@ class UserRepository(
         usersCollection.document(userId)
             .update("savedPlaces", com.google.firebase.firestore.FieldValue.arrayRemove(placeId))
             .await()
-    }
-
-    suspend fun getFavoritePlaceIds(userId: String): List<String> {
-        val user = getUserById(userId)
-        return user?.savedPlaces ?: emptyList()
-    }
-
-    // ---------------------------------------------------------
-    // TOKEN FCM
-    // ---------------------------------------------------------
-    suspend fun updateFcmToken(userId: String, token: String) {
-        usersCollection.document(userId).update("fcmToken", token).await()
     }
 
     // ---------------------------------------------------------

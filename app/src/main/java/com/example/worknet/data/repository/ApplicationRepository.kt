@@ -28,48 +28,6 @@ class ApplicationRepository(
             .await()
     }
 
-    // ---------------------------------------------------------
-    // LETTURA CANDIDATURE DI UN JOB
-    // ---------------------------------------------------------
-    suspend fun getApplicationsByJob(placeId: String, jobId: String): List<Application> {
-        val snapshot = applicationsCollection(placeId, jobId).get().await()
-        return snapshot.toObjects(Application::class.java)
-    }
-
-    // ---------------------------------------------------------
-    // LETTURA CANDIDATURE INVIATE DA UN UTENTE
-    // ---------------------------------------------------------
-    suspend fun getApplicationsByUser(userId: String): List<Application> {
-        val snapshot = db.collectionGroup("applications")
-            .whereEqualTo("userId", userId)
-            .get()
-            .await()
-
-        return snapshot.toObjects(Application::class.java)
-    }
-
-    // ---------------------------------------------------------
-    // LETTURA CANDIDATURE RICEVUTE DAL DATORE
-    // ---------------------------------------------------------
-    suspend fun getApplicationsReceivedByOwner(ownerId: String): List<Application> {
-        val snapshot = db.collectionGroup("applications")
-            .whereEqualTo("ownerId", ownerId)
-            .get()
-            .await()
-
-        return snapshot.toObjects(Application::class.java)
-    }
-
-    // ---------------------------------------------------------
-    // AGGIORNAMENTO CANDIDATURA
-    // ---------------------------------------------------------
-    suspend fun updateApplication(application: Application) {
-        applicationsCollection(application.placeId, application.jobId)
-            .document(application.id)
-            .set(application)
-            .await()
-    }
-
     suspend fun updateApplicationStatus(
         placeId: String,
         jobId: String,
@@ -79,16 +37,6 @@ class ApplicationRepository(
         applicationsCollection(placeId, jobId)
             .document(applicationId)
             .update("status", status)
-            .await()
-    }
-
-    // ---------------------------------------------------------
-    // ELIMINAZIONE CANDIDATURA
-    // ---------------------------------------------------------
-    suspend fun deleteApplication(placeId: String, jobId: String, applicationId: String) {
-        applicationsCollection(placeId, jobId)
-            .document(applicationId)
-            .delete()
             .await()
     }
 

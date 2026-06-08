@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,9 +40,7 @@ fun CreateProfileScreen(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    val context = LocalContext.current
 
-    // Launchers (Identici a EditProfile per coerenza)
     val photoLauncher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
         viewModel.selectedImageUri = it
     }
@@ -74,13 +73,12 @@ fun CreateProfileScreen(
                 title = { Text("Crea Profilo", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Indietro")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Indietro")
                     }
                 }
             )
         },
         bottomBar = {
-            // Bottone fisso in basso per l'azione principale
             Surface(tonalElevation = 3.dp) {
                 Button(
                     onClick = { viewModel.createAccount { navController.navigate(NavigationRoute.Home) } },

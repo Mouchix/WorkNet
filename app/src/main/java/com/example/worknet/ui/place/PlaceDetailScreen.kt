@@ -22,6 +22,7 @@ import com.example.worknet.ui.components.OwnerJobCard
 import com.google.firebase.auth.FirebaseAuth
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import com.example.worknet.navigation.NavigationRoute
 import androidx.compose.ui.platform.LocalContext
@@ -37,7 +38,7 @@ fun PlaceDetailScreen(
     LaunchedEffect(Unit) {
         viewModel.loadPlaceDetails()
     }
-    // Osserviamo lo stato del ViewModel in modo sicuro per il ciclo di vita
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isFavourite by viewModel.isFavourite.collectAsStateWithLifecycle()
 
@@ -64,21 +65,19 @@ fun PlaceDetailScreen(
             LazyColumn(
                 modifier = modifier.fillMaxSize()
             ) {
-                // Foto, back button
                 item {
                     var showDeleteDialog by remember { mutableStateOf(false) }
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(250.dp) // Definiamo l'altezza del contenitore
+                            .height(250.dp)
                     ) {
-                        // 1. IMMAGINE (Sotto a tutto)
                         if (!place.imageUrl.isNullOrEmpty()) {
                             AsyncImage(
                                 model = place.imageUrl,
                                 contentDescription = null,
                                 modifier = Modifier
-                                    .fillMaxSize() // Riempie tutto il Box
+                                    .fillMaxSize()
                                     .clip(
                                         RoundedCornerShape(
                                             bottomStart = 24.dp,
@@ -109,13 +108,12 @@ fun PlaceDetailScreen(
                             }
                         }
 
-                        // 2. TASTO INDIETRO (In alto a sinistra)
                         FilledIconButton(
                             onClick = { navController.popBackStack() },
                             modifier = Modifier
-                                .align(Alignment.TopStart) // LO SPINGE IN ALTO A SINISTRA
-                                .padding(16.dp)      // Margine dal bordo dello schermo
-                                .size(40.dp),         // Dimensione standard M3
+                                .align(Alignment.TopStart)
+                                .padding(16.dp)
+                                .size(40.dp),
                             colors = IconButtonDefaults.filledIconButtonColors(
                                 containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                                 contentColor = MaterialTheme.colorScheme.onSurface
@@ -129,8 +127,6 @@ fun PlaceDetailScreen(
                         }
 
                         if (isOwner) {
-
-                            // Pulsante Modifica
                             FilledIconButton(
                                 onClick = {
                                     navController.navigate(NavigationRoute.EditPlace(place.id))
@@ -151,7 +147,6 @@ fun PlaceDetailScreen(
                                 )
                             }
 
-                            // Pulsante Elimina
                             FilledIconButton(
                                 onClick = { showDeleteDialog = true },
                                 modifier = Modifier
@@ -159,7 +154,7 @@ fun PlaceDetailScreen(
                                     .padding(
                                         end = 72.dp,
                                         top = 16.dp
-                                    ) // spostato a sinistra della matita
+                                    )
                                     .size(40.dp),
                                 colors = IconButtonDefaults.filledIconButtonColors(
                                     containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
@@ -182,7 +177,7 @@ fun PlaceDetailScreen(
                                 TextButton(onClick = {
                                     showDeleteDialog = false
                                     viewModel.deletePlace(place.id) {
-                                        navController.popBackStack() // Torna alla home
+                                        navController.popBackStack()
                                     }
                                 }) {
                                     Text("Elimina")
@@ -205,6 +200,7 @@ fun PlaceDetailScreen(
                         )
                     }
                 }
+
                 // Titolo, like button e descrizione
                 item {
                     Column(modifier = Modifier.padding(16.dp)) {
@@ -244,7 +240,6 @@ fun PlaceDetailScreen(
                 item {
                     val context = LocalContext.current
 
-                    // Mostriamo la sezione solo se c'è almeno un dato sulla posizione
                     if (place.address.isNotEmpty() || (place.latitude != null && place.longitude != null)) {
                         Column(
                             modifier = Modifier
@@ -279,7 +274,7 @@ fun PlaceDetailScreen(
 
                                     Column(modifier = Modifier.weight(1f)) {
                                         Text(
-                                            text = if (place.address.isNotEmpty()) place.address else "Visualizza sulla mappa",
+                                            text = place.address.ifEmpty { "Visualizza sulla mappa" },
                                             style = MaterialTheme.typography.bodyLarge
                                         )
                                         Text(
@@ -290,7 +285,7 @@ fun PlaceDetailScreen(
                                     }
 
                                     Icon(
-                                        imageVector = Icons.Default.OpenInNew,
+                                        imageVector = Icons.AutoMirrored.Filled.OpenInNew,
                                         contentDescription = null,
                                         modifier = Modifier.size(18.dp),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -322,7 +317,6 @@ fun PlaceDetailScreen(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable {
-                                        // Navigazione al profilo (assicurati che la rotta sia corretta)
                                         navController.navigate(NavigationRoute.User(userId = owner.id))
                                     }
                             ) {
@@ -387,7 +381,7 @@ fun PlaceDetailScreen(
                         }
                     }
                 } else {
-                    // Vista utente normale (la tua attuale)
+                    // Vista utente normale
                     items(jobs) { job ->
                         Box(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
                             var showDialog by remember { mutableStateOf(false) }

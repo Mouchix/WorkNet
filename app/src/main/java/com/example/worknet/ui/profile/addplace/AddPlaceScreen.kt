@@ -34,7 +34,7 @@ import com.example.worknet.ui.components.JobInputCard
 @Composable
 fun AddPlaceScreen(
     navController: NavHostController,
-    placeId: String? = null,   // NULL = CREA, NON NULL = MODIFICA
+    placeId: String? = null,
     viewModel: AddPlaceViewModel = koinViewModel()
 ) {
     val context = LocalContext.current

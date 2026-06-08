@@ -17,7 +17,6 @@ class LoginViewModel(
     var isLoading by mutableStateOf(false)
     var errorMessage by mutableStateOf<String?>(null)
 
-    // Validazione intelligente
     val isEmailValid: Boolean
         get() = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() || email.isEmpty()
 
@@ -29,14 +28,13 @@ class LoginViewModel(
 
         viewModelScope.launch {
             isLoading = true
-            errorMessage = null // Reset errore precedente
+            errorMessage = null
 
             val result = userRepository.signIn(email, password)
 
             if (result.isSuccess) {
                 onSuccess()
             } else {
-                // Gestione errori amichevole
                 val exception = result.exceptionOrNull()
                 errorMessage = when {
                     exception?.message?.contains("password") == true -> "Password errata. Riprova."

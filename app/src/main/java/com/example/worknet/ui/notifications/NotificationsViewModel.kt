@@ -26,7 +26,6 @@ class NotificationsViewModel(
         viewModelScope.launch {
             val userId = userRepository.getCurrentUserId() ?: return@launch
             notificationRepository.observeNotifications(userId).collect { notifications ->
-                // Ordiniamo le notifiche: le più recenti (createdAt più alto) in cima
                 _uiState.value = notifications.sortedByDescending { it.createdAt }
             }
         }

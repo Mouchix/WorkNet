@@ -18,32 +18,9 @@ class JobRepository(
         jobsCollection(job.placeId).document(job.id).set(job).await()
     }
 
-    // ---------------------------------------------------------
-    // LETTURA JOB
-    // ---------------------------------------------------------
-    suspend fun getJobById(placeId: String, jobId: String): Job? {
-        val snapshot = jobsCollection(placeId).document(jobId).get().await()
-        return snapshot.toObject(Job::class.java)
-    }
-
     suspend fun getJobsByPlace(placeId: String): List<Job> {
         val snapshot = jobsCollection(placeId).get().await()
         return snapshot.toObjects(Job::class.java)
-    }
-
-    // ---------------------------------------------------------
-    // AGGIORNAMENTO JOB
-    // ---------------------------------------------------------
-    suspend fun updateJob(job: Job) {
-        jobsCollection(job.placeId).document(job.id).set(job).await()
-    }
-
-    suspend fun updateTitle(placeId: String, jobId: String, title: String) {
-        jobsCollection(placeId).document(jobId).update("title", title).await()
-    }
-
-    suspend fun updateDescription(placeId: String, jobId: String, description: String) {
-        jobsCollection(placeId).document(jobId).update("description", description).await()
     }
 
     // ---------------------------------------------------------
@@ -55,10 +32,7 @@ class JobRepository(
 
     suspend fun deleteJobsByPlace(placeId: String) {
         try {
-            // 1. Ottieni tutti i job del place
             val snapshot = jobsCollection(placeId).get().await()
-
-            // 2. Elimina ogni job usando la tua funzione deleteJob
             for (doc in snapshot.documents) {
                 val jobId = doc.id
                 deleteJob(placeId, jobId)

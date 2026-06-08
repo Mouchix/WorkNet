@@ -58,14 +58,11 @@ fun NotificationsScreen(
         }
     ) { scaffoldPadding ->
         LazyColumn (
-            // Usiamo il modifier esterno ma senza padding che "tagliano" la vista
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 start = 16.dp,
-                // Usiamo il padding della TopBar locale + margine estetico
                 top = scaffoldPadding.calculateTopPadding() + 16.dp,
                 end = 16.dp,
-                // Usiamo il padding della BottomBar esterna + margine estetico
                 bottom = innerPadding.calculateBottomPadding() + 16.dp
             ),
             verticalArrangement = Arrangement.spacedBy(12.dp)

@@ -51,7 +51,6 @@ fun WelcomeScreen(
             )
         }
     ) { padding ->
-        // Box per occupare tutto lo spazio e centrare il contenuto
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -65,7 +64,6 @@ fun WelcomeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Messaggio di benvenuto opzionale sopra i bottoni
                 Text(
                     text = "Benvenuto nel tuo network professionale",
                     style = MaterialTheme.typography.bodyLarge,
@@ -73,7 +71,7 @@ fun WelcomeScreen(
                     modifier = Modifier.padding(bottom = 24.dp)
                 )
 
-                // PULSANTE ACCEDI (Azione Primaria - Pieno)
+                // PULSANTE ACCEDI
                 Button(
                     onClick = { navController.navigate(NavigationRoute.Login) },
                     modifier = Modifier
@@ -88,7 +86,7 @@ fun WelcomeScreen(
                     )
                 }
 
-                // PULSANTE REGISTRATI (Azione Secondaria - Outlined)
+                // PULSANTE REGISTRATI
                 OutlinedButton(
                     onClick = { navController.navigate(NavigationRoute.CreateProfile) },
                     modifier = Modifier
@@ -142,7 +140,7 @@ fun WelcomeScreen(
                     shape = RoundedCornerShape(16.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.AccountCircle, // O la tua risorsa personalizzata per il logo Google
+                        imageVector = Icons.Default.AccountCircle,
                         contentDescription = "Google Logo",
                         modifier = Modifier.size(24.dp)
                     )

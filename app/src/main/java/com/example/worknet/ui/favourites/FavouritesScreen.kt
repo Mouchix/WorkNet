@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.worknet.navigation.NavigationRoute
-import com.example.worknet.ui.components.PlaceCard // Assicurati che sia pubblica
+import com.example.worknet.ui.components.PlaceCard
 
 @Composable
 fun FavouritesScreen(
@@ -29,7 +29,7 @@ fun FavouritesScreen(
             Surface(
                 modifier = modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp // Crea l'effetto separazione tipico della TopAppBar
+                tonalElevation = 3.dp
             ) {
                 Box(
                     modifier = modifier
@@ -73,10 +73,10 @@ fun FavouritesScreen(
                         ),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(state.favouritePlaces) { item -> // 'item' è di tipo PlaceWithJobs
+                        items(state.favouritePlaces) { item ->
                             PlaceCard(
                                 place = item.place,
-                                jobs = item.jobs, // Passiamo la lista reale dei lavori
+                                jobs = item.jobs,
                                 onClick = {
                                     navController.navigate(NavigationRoute.PlaceDetail(item.place.id))
                                 }

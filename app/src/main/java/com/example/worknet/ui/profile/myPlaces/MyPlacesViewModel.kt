@@ -29,7 +29,6 @@ class MyPlacesViewModel(
             val userId = userRepository.getCurrentUserId() ?: return@launch
             val places = placeRepository.getPlacesByOwner(userId)
 
-            // Se vuoi anche i job associati:
             val placesWithJobs = places.associateWith { place ->
                 jobRepository.getJobsByPlace(place.id)
             }

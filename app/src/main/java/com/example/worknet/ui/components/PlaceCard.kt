@@ -36,7 +36,7 @@ fun PlaceCard(
     ) {
         Row(
             modifier = Modifier
-                .height(IntrinsicSize.Min) // Pareggia l'altezza tra immagine e testo
+                .height(IntrinsicSize.Min)
                 .fillMaxWidth()
         ) {
             // --- IMMAGINE A SINISTRA ---
@@ -45,8 +45,8 @@ fun PlaceCard(
                     model = place.imageUrl,
                     contentDescription = null,
                     modifier = Modifier
-                        .width(130.dp) // Leggermente più larga per bilanciare meglio
-                        .fillMaxHeight(), // Occupa tutta l'altezza decisa dai testi a destra
+                        .width(130.dp)
+                        .fillMaxHeight(),
                     contentScale = ContentScale.Crop
                 )
             } else {
@@ -65,8 +65,8 @@ fun PlaceCard(
             Column(
                 modifier = Modifier
                     .padding(16.dp)
-                    .weight(1f), // Occupa lo spazio rimanente
-                verticalArrangement = Arrangement.Center // Centra verticalmente rispetto all'immagine
+                    .weight(1f),
+                verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = place.title,
@@ -95,8 +95,6 @@ fun PlaceCard(
 
                 if (jobs.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(12.dp))
-
-                    // Prendiamo al massimo 2 job
                     val displayJobs = jobs.take(2)
                     val remainingJobs = jobs.size - displayJobs.size
 
@@ -110,7 +108,6 @@ fun PlaceCard(
                         )
                     }
 
-                    // Se ce ne sono altri, mettiamo il conteggio invece dei puntini (più chiaro)
                     if (remainingJobs > 0) {
                         Text(
                             text = "+ altre $remainingJobs posizioni...",

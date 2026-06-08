@@ -25,6 +25,7 @@ import coil.compose.AsyncImage
 import com.example.worknet.ui.components.PlaceCard
 import androidx.compose.ui.platform.LocalContext
 import com.example.worknet.ui.profile.InfoRow
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,7 +104,7 @@ fun UserScreen(
                     Button(
                         onClick = {
                             viewModel.onViewCvClick { url ->
-                                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
                                 context.startActivity(intent)
                             }
                         },
@@ -129,7 +130,6 @@ fun UserScreen(
                 items(viewModel.placesWithJobs.keys.toList()) { place ->
                     val jobs = viewModel.placesWithJobs.get(place) ?: emptyList()
 
-                    // Usiamo la tua PlaceCard personalizzata
                     PlaceCard(
                         place = place,
                         jobs = jobs,

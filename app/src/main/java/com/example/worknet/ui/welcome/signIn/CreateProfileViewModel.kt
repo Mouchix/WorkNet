@@ -19,7 +19,6 @@ class CreateProfileViewModel(
     private val userRepository: UserRepository
 ) : ViewModel() {
 
-    // Stati dei campi
     var name by mutableStateOf("")
     var email by mutableStateOf("")
     var birthDate by mutableStateOf("")
@@ -31,7 +30,6 @@ class CreateProfileViewModel(
     val isEmailValid: Boolean
         get() = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() || email.isEmpty()
 
-    // Stati per i file
     var selectedImageUri by mutableStateOf<Uri?>(null)
     var selectedCvUri by mutableStateOf<Uri?>(null)
 
@@ -44,7 +42,6 @@ class CreateProfileViewModel(
     private var searchJob: kotlinx.coroutines.Job? = null
     var isGeocoding by mutableStateOf(false)
 
-    // Semplice validazione
     val canCreate: Boolean
         get() = name.isNotBlank() &&
                 email.isNotBlank() &&
@@ -59,8 +56,8 @@ class CreateProfileViewModel(
             isCreating = true
             errorMessage = null
             try {
-                var userProfile = User(
-                    id = "", // Verrà impostato dal repository
+                val userProfile = User(
+                    id = "",
                     name = name,
                     email = email,
                     birthDate = birthDate,
@@ -70,13 +67,10 @@ class CreateProfileViewModel(
                     savedPlaces = emptyList()
                 )
 
-                // 2. Chiamata al repository per creare l'account Auth e Firestore
                 val result = userRepository.signUp(email, password, userProfile)
 
                 if (result.isSuccess) {
                     val userId = userRepository.getCurrentUserId()!!
-
-                    // 3. Caricamento file (se selezionati)
                     var photoUrl: String? = null
                     var cvUrl: String? = null
 
@@ -87,7 +81,6 @@ class CreateProfileViewModel(
                         cvUrl = userRepository.uploadCv(uri, userId)
                     }
 
-                    // 4. Se sono stati caricati file, aggiorniamo il documento
                     if (photoUrl != null || cvUrl != null) {
                         val finalUser = userProfile.copy(
                             id = userId,
@@ -110,8 +103,7 @@ class CreateProfileViewModel(
     }
 
     fun onResidenceChange(newValue: String, context: Context) {
-        residence = newValue // 'residence' è la variabile che tiene il testo del campo
-
+        residence = newValue
         searchJob?.cancel()
 
         if (newValue.length > 3) {
@@ -120,7 +112,6 @@ class CreateProfileViewModel(
                 try {
                     val geocoder = Geocoder(context, Locale.getDefault())
                     val results = withContext(Dispatchers.IO) {
-                        // Cerchiamo fino a 5 indirizzi simili
                         geocoder.getFromLocationName(newValue, 5)
                     }
                     addressSuggestions.clear()
@@ -137,7 +128,6 @@ class CreateProfileViewModel(
     }
 
     fun selectResidence(address: Address) {
-        // Formattiamo l'indirizzo (es. "Milano, MI, Italia")
         val city = address.locality ?: ""
         val province = address.adminArea ?: ""
         val country = address.countryName ?: ""
@@ -146,6 +136,6 @@ class CreateProfileViewModel(
             .filter { it.isNotBlank() }
             .joinToString(", ")
 
-        addressSuggestions.clear() // Chiudiamo i suggerimenti
+        addressSuggestions.clear()
     }
 }

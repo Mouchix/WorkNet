@@ -26,6 +26,7 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.Locale
 import java.util.UUID
+import androidx.core.net.toUri
 
 class AddPlaceViewModel(
     private val placeRepository: PlaceRepository,
@@ -42,7 +43,6 @@ class AddPlaceViewModel(
     var imageUri by mutableStateOf<Uri?>(null)
 
     // --- STATO DEI JOB ---
-    // SnapshotStateList è perfetta per le liste dinamiche in Compose
     var jobsList = mutableStateListOf<Job>()
 
     // --- STATO UI ---
@@ -62,7 +62,6 @@ class AddPlaceViewModel(
     }
 
     fun onPhotoTaken(bitmap: Bitmap, context: Context) {
-        // Convertiamo il Bitmap della fotocamera in un Uri locale per gestirlo uniformemente
         viewModelScope.launch(Dispatchers.IO) {
             val file = File(context.cacheDir, "temp_photo_${System.currentTimeMillis()}.jpg")
             FileOutputStream(file).use { out ->
@@ -74,48 +73,18 @@ class AddPlaceViewModel(
         }
     }
 
-    // --- LOGICA GEOCODING ---
-    fun geocodeAddress(context: Context) {
-        if (placeAddress.isBlank()) return
-
-        viewModelScope.launch {
-            isGeocoding = true
-            try {
-                // Eseguiamo il Geocoding in un thread secondario (IO)
-                val addressFound = withContext(Dispatchers.IO) {
-                    val geocoder = Geocoder(context, Locale.getDefault())
-                    // Usiamo il metodo tradizionale per compatibilità, o quello nuovo per API 33+
-                    geocoder.getFromLocationName(placeAddress, 1)
-                }
-
-                if (!addressFound.isNullOrEmpty()) {
-                    val location = addressFound[0]
-                    latitude = location.latitude
-                    longitude = location.longitude
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                isGeocoding = false
-            }
-        }
-    }
-
     fun onAddressChange(newValue: String, context: Context) {
         placeAddress = newValue
-        latitude = null // Resettiamo le coordinate se l'utente cambia testo
+        latitude = null
         longitude = null
-
-        // Cancelliamo la ricerca precedente per non sovraccaricare il sistema
         searchJob?.cancel()
 
         if (newValue.length > 3) {
             searchJob = viewModelScope.launch {
-                delay(500) // Aspettiamo che l'utente smetta di scrivere (debouncing)
+                delay(500)
                 try {
                     val geocoder = Geocoder(context, Locale.getDefault())
                     val results = withContext(Dispatchers.IO) {
-                        // Cerchiamo fino a 5 indirizzi simili
                         geocoder.getFromLocationName(newValue, 5)
                     }
                     addressSuggestions.clear()
@@ -132,12 +101,11 @@ class AddPlaceViewModel(
     }
 
     fun selectAddress(address: Address) {
-        // Componiamo l'indirizzo formattato
         val fullAddress = "${address.thoroughfare ?: ""}, ${address.subThoroughfare ?: ""}, ${address.locality ?: ""}"
         placeAddress = fullAddress.trim().trim(',')
         latitude = address.latitude
         longitude = address.longitude
-        addressSuggestions.clear() // Chiudiamo i suggerimenti
+        addressSuggestions.clear()
     }
 
     // --- GESTIONE JOB DINAMICI ---
@@ -173,11 +141,7 @@ class AddPlaceViewModel(
             try {
                 val userId = userRepository.getCurrentUserId() ?: return@launch
                 val newPlaceId = UUID.randomUUID().toString()
-
-                //1. Carica l'immagine su Storage
                 val imageUrl = placeRepository.uploadPlaceImage(imageUri!!, newPlaceId)
-
-                // 2. Crea l'oggetto Place
                 val newPlace = Place(
                     id = newPlaceId,
                     ownerId = userId,
@@ -188,11 +152,8 @@ class AddPlaceViewModel(
                     longitude = longitude,
                     imageUrl = imageUrl
                 )
-
-                // 3. Salva il Place
                 placeRepository.createPlace(newPlace)
 
-                // 4. Salva tutti i Job associati
                 jobsList.forEach { job ->
                     val jobToSave = job.copy(placeId = newPlace.id)
                     jobRepository.createJob(jobToSave)
@@ -200,14 +161,11 @@ class AddPlaceViewModel(
 
                 _toastMessage.emit("Attività pubblicata con successo!")
 
-                // Navigazione sul Thread Principale
                 withContext(Dispatchers.Main) {
                     onSuccess()
                 }
                 onSuccess()
             } catch (e: Exception) {
-                // Gestione errore
-
                 _toastMessage.emit("Errore durante il salvataggio: ${e.localizedMessage}")
             } finally {
                 isSaving = false
@@ -220,16 +178,12 @@ class AddPlaceViewModel(
             try {
                 val place = placeRepository.getPlaceById(placeId)
                 if (place != null) {
-
-                    // Popola i campi UI
                     placeTitle = place.title
                     placeDescription = place.description
                     placeAddress = place.address
                     latitude = place.latitude
                     longitude = place.longitude
-                    imageUri = place.imageUrl?.let { Uri.parse(it) }
-
-                    // Carica i job associati
+                    imageUri = place.imageUrl?.let { it.toUri() }
                     val jobs = jobRepository.getJobsByPlace(placeId)
                     jobsList.clear()
                     jobsList.addAll(jobs)
@@ -247,13 +201,10 @@ class AddPlaceViewModel(
             isSaving = true
             try {
                 val userId = userRepository.getCurrentUserId() ?: return@launch
-
-                // 1. Se l'immagine è cambiata, ricaricala
                 val imageUrl = if (imageUri != null) {
                     placeRepository.uploadPlaceImage(imageUri!!, placeId)
                 } else null
 
-                // 2. Crea oggetto aggiornato
                 val updatedPlace = Place(
                     id = placeId,
                     ownerId = userId,
@@ -265,11 +216,9 @@ class AddPlaceViewModel(
                     imageUrl = imageUrl
                 )
 
-                // 3. Aggiorna Place
                 placeRepository.updatePlace(updatedPlace)
 
-                // 4. Aggiorna Jobs
-                jobRepository.deleteJobsByPlace(placeId)   // pulizia vecchi job
+                jobRepository.deleteJobsByPlace(placeId)
                 jobsList.forEach { job ->
                     val updatedJob = job.copy(placeId = placeId)
                     jobRepository.createJob(updatedJob)

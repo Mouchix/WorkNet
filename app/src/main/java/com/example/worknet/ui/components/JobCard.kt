@@ -70,7 +70,7 @@ fun JobCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // BOTTONE DENTRO LA CARD (Material 3 Tonal Button)
+            // BOTTONE DENTRO LA CARD
             Button(
                 onClick = onApplyClick,
                 enabled = !isSending,

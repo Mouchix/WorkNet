@@ -29,7 +29,7 @@ fun HomeScreen(
 
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
-            viewModel.refreshData() // Metodo che rifà la chiamata al DB
+            viewModel.refreshData()
         }
     }
 
@@ -38,7 +38,7 @@ fun HomeScreen(
             Surface(
                 modifier = modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.surface,
-                tonalElevation = 3.dp // Crea l'effetto separazione tipico della TopAppBar
+                tonalElevation = 3.dp
             ) {
                 Box(
                     modifier = modifier
@@ -70,7 +70,7 @@ fun HomeScreen(
             item {
                 OutlinedTextField(
                     value = query,
-                    onValueChange = { viewModel.onQueryChange(it) }, // Delega al ViewModel
+                    onValueChange = { viewModel.onQueryChange(it) },
                     label = { Text("Cerca lavoro o attività") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true

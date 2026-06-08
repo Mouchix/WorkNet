@@ -33,6 +33,7 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.worknet.navigation.NavigationRoute
 import com.example.worknet.ui.components.SectionTitle
+import androidx.core.net.toUri
 
 @Composable
 fun ProfileScreen(
@@ -119,7 +120,6 @@ fun ProfileScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
                 ) {
                     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                        // Email per prima come richiesto
                         InfoRow(icon = Icons.Default.Email, label = "Email", value = user.email)
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
 
@@ -145,7 +145,6 @@ fun ProfileScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow)
                 ) {
                     Column {
-                        // Modifica Account aggiunta
                         ProfileMenuItem(icon = Icons.Default.Edit, label = "Modifica Account") {
                             navController.navigate(NavigationRoute.EditProfile(userId = user.id))
                         }
@@ -165,13 +164,13 @@ fun ProfileScreen(
                             viewModel.onViewCvClick { url ->
                                 if (url.isNullOrBlank()) {
                                     Toast.makeText(
-                                        context, // Usa il context dell'activity
+                                        context,
                                         "Nessun CV trovato. Caricalo in Modifica Profilo.",
                                         Toast.LENGTH_LONG
                                     ).show()
                                 } else {
                                     try {
-                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                                        val intent = Intent(Intent.ACTION_VIEW, url.toUri())
                                         context.startActivity(intent)
                                     } catch (e: Exception) {
                                         Toast.makeText(
@@ -187,7 +186,6 @@ fun ProfileScreen(
 
                         ProfileMenuItem(icon = Icons.AutoMirrored.Filled.ExitToApp, label = "Logout", isError = true) {
                             viewModel.logout {
-                                // Torna alla pagina di benvenuto dopo il logout
                                 navController.navigate(NavigationRoute.Welcome) {
                                     popUpTo(0) { inclusive = true }
                                 }
@@ -224,7 +222,7 @@ fun ProfileMenuItem(
     ListItem(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }, // Il click ora è parte integrante della riga
+            .clickable { onClick() },
         headlineContent = {
             Text(label, color = color, style = MaterialTheme.typography.bodyLarge)
         },

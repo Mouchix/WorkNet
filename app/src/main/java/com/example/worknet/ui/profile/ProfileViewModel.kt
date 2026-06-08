@@ -9,10 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// Lo stato rimane simile, ma ora i dati arrivano dal tuo Repository
 sealed class ProfileUiState {
     object Loading : ProfileUiState()
-    data class Success(val user: User) : ProfileUiState() // User deve essere il tuo modello dati
+    data class Success(val user: User) : ProfileUiState()
     data class Error(val message: String) : ProfileUiState()
 }
 
@@ -45,13 +44,12 @@ class ProfileViewModel(
 
     fun logout(onComplete: () -> Unit) {
         userRepository.logout()
-        onComplete() // Callback per resettare la navigazione o lo stato UI
+        onComplete()
     }
 
     fun onViewCvClick(onOpenUri: (String?) -> Unit) {
         val currentState = _uiState.value
         if (currentState is ProfileUiState.Success) {
-            // Passiamo l'url (che sia stringa o null) alla UI
             onOpenUri(currentState.user.cvUrl)
         }
     }

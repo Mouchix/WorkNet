@@ -46,9 +46,9 @@ fun MyPlacesScreen(
                     FilledIconButton(
                         onClick = { navController.popBackStack() },
                         modifier = Modifier
-                            .align(Alignment.TopStart) // LO SPINGE IN ALTO A SINISTRA
-                            .padding(16.dp)      // Margine dal bordo dello schermo
-                            .size(40.dp),         // Dimensione standard M3
+                            .align(Alignment.TopStart)
+                            .padding(16.dp)
+                            .size(40.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
                             contentColor = MaterialTheme.colorScheme.onSurface
@@ -78,10 +78,8 @@ fun MyPlacesScreen(
                     modifier = Modifier.fillMaxSize().padding(16.dp),
                     contentPadding = PaddingValues(
                         start = 16.dp,
-                        // Usiamo il padding della TopBar locale + margine estetico
                         top = scaffoldPadding.calculateTopPadding() + 16.dp,
                         end = 16.dp,
-                        // Usiamo il padding della BottomBar esterna + margine estetico
                         bottom =  16.dp
                     ),
                     verticalArrangement = Arrangement.spacedBy(16.dp)

@@ -80,14 +80,13 @@ class EditProfileViewModel(
                     photoUrl = userRepository.uploadProfilePhoto(uri, userId)
                 }
 
-                var cvUrl = "" // Qui recuperare il vecchio URL se non cambia
+                var cvUrl = ""
                 selectedCvUri?.let { uri ->
                     cvUrl = userRepository.uploadCv(uri, userId)
                 }
 
                 val currentUser = userRepository.getUserById(userId)
 
-                // Creazione dell'oggetto utente aggiornato
                 val updatedUser = currentUser?.copy(
                     name = name,
                     email = email,
@@ -109,13 +108,11 @@ class EditProfileViewModel(
                     cvUrl = cvUrl
                 )
 
-                // Salvataggio nuovo oggetto User su Firestore
                 userRepository.updateUser(updatedUser)
 
                 isSaving = false
                 onSuccess()
             } catch (e: Exception) {
-                // Gestione errore
                 isSaving = false
             }
         }
@@ -126,9 +123,7 @@ class EditProfileViewModel(
     }
 
     fun onResidenceChange(newValue: String, context: Context) {
-        residence = newValue // 'residence' è la variabile che tiene il testo del campo
-
-        // Cancelliamo la ricerca precedente per non sovraccaricare il sistema
+        residence = newValue
         searchJob?.cancel()
 
         if (newValue.length > 3) {
@@ -153,7 +148,6 @@ class EditProfileViewModel(
     }
 
     fun selectResidence(address: Address) {
-        // Formattiamo l'indirizzo (es. "Milano, MI, Italia")
         val city = address.locality ?: ""
         val province = address.adminArea ?: ""
         val country = address.countryName ?: ""
@@ -162,6 +156,6 @@ class EditProfileViewModel(
             .filter { it.isNotBlank() }
             .joinToString(", ")
 
-        addressSuggestions.clear() // Chiudiamo i suggerimenti
+        addressSuggestions.clear()
     }
 }
