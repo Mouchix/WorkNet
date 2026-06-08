@@ -29,6 +29,8 @@ import coil.compose.AsyncImage
 import org.koin.androidx.compose.koinViewModel
 import com.example.worknet.ui.components.SectionTitle
 import com.example.worknet.ui.components.JobInputCard
+import androidx.core.content.ContextCompat
+import android.os.Build
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,6 +56,13 @@ fun AddPlaceScreen(
         uri?.let { viewModel.onImageSelected(it) }
     }
 
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            cameraLauncher.launch()
+        }
+    }
 
     // Se siamo in modalità modifica, carichiamo i dati
     LaunchedEffect(placeId) {
@@ -263,7 +272,15 @@ fun AddPlaceScreen(
                     leadingContent = { Icon(Icons.Default.CameraAlt, contentDescription = null) },
                     modifier = Modifier.clickable {
                         showImageSheet = false
-                        cameraLauncher.launch()
+                        val granted = ContextCompat.checkSelfPermission(
+                            context, android.Manifest.permission.CAMERA
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
+                        if (granted) {
+                            cameraLauncher.launch()
+                        } else {
+                            permissionLauncher.launch(android.Manifest.permission.CAMERA)
+                        }
                     }
                 )
                 ListItem(
